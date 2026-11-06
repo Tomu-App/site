@@ -7,5 +7,12 @@
   "mail_confirm_link_hint": "Der Link ist 48 Stunden gültig.",
   "mail_confirm_ignore": "Wenn du dich nicht angemeldet hast, kannst du diese Mail einfach ignorieren. Dann passiert nichts weiter.",
   "mail_confirm_unsubscribe": "Du möchtest dich abmelden oder deine Daten löschen lassen?",
-  "mail_confirm_signoff": "Dein Tomu-Team"
+  "mail_confirm_signoff": "Dein Tomu-Team",
+  "confirm_page_title": "Anmeldung bestätigen",
+  "confirm_page_done": "Danke, du bist dabei.",
+  "unsubscribe_page_title": "Abmelden",
+  "unsubscribe_page_button": "Abmelden",
+  "unsubscribe_page_done": "Du bist abgemeldet.",
+  "link_invalid_title": "Dieser Link ist nicht mehr gültig.",
+  "link_invalid_hint": "Bitte trage dich noch einmal neu ein, dann schicken wir dir eine neue Mail."
 }
