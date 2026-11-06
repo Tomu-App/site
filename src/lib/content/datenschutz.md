@@ -13,7 +13,8 @@ Wenn du dich für Neuigkeiten zu Tomu anmeldest, speichern wir:
 
 - deine E-Mail-Adresse,
 - den Zeitpunkt der Anmeldung und den Zeitpunkt deiner Bestätigung,
-- die Version des Einwilligungstexts, dem du zugestimmt hast.
+- die Version des Einwilligungstexts, dem du zugestimmt hast,
+- die Sprache der Seite, auf der du dich angemeldet hast (Deutsch oder Englisch), damit wir dir in dieser Sprache schreiben.
 
 Wir speichern keine IP-Adressen, setzen keine Cookies und nutzen keine Analyse- oder Tracking-Werkzeuge.
 

@@ -42,7 +42,7 @@ describe("normalizeEmail", () => {
 
 describe("requestSubscription", () => {
   it("creates a pending row for a new address", async () => {
-    const r = await requestSubscription(db, EMAIL, T);
+    const r = await requestSubscription(db, EMAIL, T, "de");
     expect(r.action).toBe("send");
     const all = await rows();
     expect(all).toHaveLength(1);
@@ -60,8 +60,8 @@ describe("requestSubscription", () => {
   });
 
   it("reuses the id and keeps one row", async () => {
-    const a = await requestSubscription(db, EMAIL, T);
-    const b = await requestSubscription(db, EMAIL, T + 1);
+    const a = await requestSubscription(db, EMAIL, T, "de");
+    const b = await requestSubscription(db, EMAIL, T + 1, "de");
     expect(a.action === "send" && b.action === "send" && a.id === b.id).toBe(true);
     expect(await rows()).toHaveLength(1);
   });
@@ -69,25 +69,25 @@ describe("requestSubscription", () => {
   it("throttles pending to 2 mails per window", async () => {
     const acts = [];
     for (const dt of [0, 1000, 2000]) {
-      acts.push((await requestSubscription(db, EMAIL, T + dt)).action);
+      acts.push((await requestSubscription(db, EMAIL, T + dt, "de")).action);
     }
     expect(acts).toEqual(["send", "send", "none"]);
-    expect((await requestSubscription(db, EMAIL, T + MAIL_WINDOW_MS)).action).toBe("send");
+    expect((await requestSubscription(db, EMAIL, T + MAIL_WINDOW_MS, "de")).action).toBe("send");
   });
 
   it("does nothing for confirmed address", async () => {
-    const r = await requestSubscription(db, EMAIL, T);
+    const r = await requestSubscription(db, EMAIL, T, "de");
     if (r.action !== "send") throw new Error("expected send");
     await confirmSubscription(db, r.id, T + 5);
     const before = await rows();
-    expect(await requestSubscription(db, EMAIL, T + 10)).toEqual({ action: "none" });
+    expect(await requestSubscription(db, EMAIL, T + 10, "de")).toEqual({ action: "none" });
     expect(await rows()).toEqual(before);
   });
 });
 
 describe("confirmSubscription", () => {
   it("confirms idempotently", async () => {
-    const r = await requestSubscription(db, EMAIL, T);
+    const r = await requestSubscription(db, EMAIL, T, "de");
     if (r.action !== "send") throw new Error("expected send");
     expect(await confirmSubscription(db, r.id, T + 100)).toBe(true);
     let [row] = await db.select().from(subscribers).where(eq(subscribers.id, r.id));
@@ -103,11 +103,11 @@ describe("confirmSubscription", () => {
 
 describe("unsubscribe", () => {
   it("deletes row; old id does not touch new row", async () => {
-    const a = await requestSubscription(db, EMAIL, T);
+    const a = await requestSubscription(db, EMAIL, T, "de");
     if (a.action !== "send") throw new Error("expected send");
     await unsubscribe(db, a.id);
     expect(await rows()).toHaveLength(0);
-    const b = await requestSubscription(db, EMAIL, T + 1);
+    const b = await requestSubscription(db, EMAIL, T + 1, "de");
     if (b.action !== "send") throw new Error("expected send");
     expect(b.id).not.toBe(a.id);
     await unsubscribe(db, a.id);
@@ -135,17 +135,36 @@ describe("cleanupPending", () => {
   });
 });
 
+describe("requestSubscription locale", () => {
+  it("stores the locale for a new row", async () => {
+    await requestSubscription(db, EMAIL, T, "en");
+    expect((await rows())[0].locale).toBe("en");
+  });
+  it("updates the locale of a pending row on resend", async () => {
+    await requestSubscription(db, EMAIL, T, "de");
+    const r = await requestSubscription(db, EMAIL, T + 1, "en");
+    expect(r.action).toBe("send");
+    expect((await rows())[0].locale).toBe("en");
+  });
+  it("does not change the locale when the resend is throttled", async () => {
+    await requestSubscription(db, EMAIL, T, "de");
+    await requestSubscription(db, EMAIL, T + 1, "de");
+    expect((await requestSubscription(db, EMAIL, T + 2, "en")).action).toBe("none");
+    expect((await rows())[0].locale).toBe("de");
+  });
+});
+
 describe("requestSubscription concurrency", () => {
   it("never exceeds the mail cap under concurrent calls", async () => {
-    await requestSubscription(db, EMAIL, T); // count = 1
-    const rs = await Promise.all([1, 2, 3, 4].map(() => requestSubscription(db, EMAIL, T + 1)));
+    await requestSubscription(db, EMAIL, T, "de"); // count = 1
+    const rs = await Promise.all([1, 2, 3, 4].map(() => requestSubscription(db, EMAIL, T + 1, "de")));
     expect(rs.filter((r) => r.action === "send")).toHaveLength(1);
     const [row] = await rows();
     expect(row.mailWindowCount).toBe(2);
   });
 
   it("concurrent first-time calls yield one row, one id, one send max per cap", async () => {
-    const rs = await Promise.all([1, 2, 3, 4].map(() => requestSubscription(db, EMAIL, T)));
+    const rs = await Promise.all([1, 2, 3, 4].map(() => requestSubscription(db, EMAIL, T, "de")));
     expect(await rows()).toHaveLength(1);
     expect(rs.filter((r) => r.action === "send").length).toBeLessThanOrEqual(2);
     const ids = new Set(rs.flatMap((r) => (r.action === "send" ? [r.id] : [])));
@@ -153,10 +172,10 @@ describe("requestSubscription concurrency", () => {
   });
 
   it("lost insert race on a confirmed address sends nothing", async () => {
-    const r = await requestSubscription(db, EMAIL, T);
+    const r = await requestSubscription(db, EMAIL, T, "de");
     if (r.action !== "send") throw new Error("expected send");
     await confirmSubscription(db, r.id, T + 1);
-    const rs = await Promise.all([1, 2, 3].map(() => requestSubscription(db, EMAIL, T + 2)));
+    const rs = await Promise.all([1, 2, 3].map(() => requestSubscription(db, EMAIL, T + 2, "de")));
     expect(rs.every((x) => x.action === "none")).toBe(true);
   });
 });

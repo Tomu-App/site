@@ -1,0 +1,1 @@
+ALTER TABLE `subscribers` ADD `locale` text DEFAULT 'de' NOT NULL;

@@ -7,6 +7,8 @@ export const MAIL_WINDOW_MS = 3_600_000;
 export const MAX_MAILS_PER_WINDOW = 2;
 export const PENDING_TTL_MS = 7 * 86_400_000;
 
+export type MailLocale = "de" | "en";
+
 export type SubscribeResult = { action: "send"; id: string; email: string } | { action: "none" };
 
 export function normalizeEmail(raw: string): string | null {
@@ -16,13 +18,19 @@ export function normalizeEmail(raw: string): string | null {
   return email;
 }
 
-export async function requestSubscription(db: Db, email: string, now: number): Promise<SubscribeResult> {
+export async function requestSubscription(
+  db: Db,
+  email: string,
+  now: number,
+  locale: MailLocale,
+): Promise<SubscribeResult> {
   const inserted = await db
     .insert(subscribers)
     .values({
       id: crypto.randomUUID(),
       email,
       status: "pending",
+      locale,
       consentVersion: CONSENT_VERSION,
       createdAt: now,
       mailWindowStart: now,
@@ -40,6 +48,7 @@ export async function requestSubscription(db: Db, email: string, now: number): P
   const updated = await db
     .update(subscribers)
     .set({
+      locale,
       mailWindowStart: sql`CASE WHEN ${expired} THEN ${now} ELSE ${subscribers.mailWindowStart} END`,
       mailWindowCount: sql`CASE WHEN ${expired} THEN 1 ELSE ${subscribers.mailWindowCount} + 1 END`,
     })

@@ -4,6 +4,9 @@ export const subscribers = sqliteTable("subscribers", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
   status: text("status", { enum: ["pending", "confirmed"] }).notNull(),
+  locale: text("locale", { enum: ["de", "en"] })
+    .notNull()
+    .default("de"),
   consentVersion: text("consent_version").notNull(),
   createdAt: integer("created_at").notNull(),
   confirmedAt: integer("confirmed_at"),

@@ -47,5 +47,10 @@
   "legal_notice_page_title": "Impressum – Tomu",
   "privacy_page_title": "Datenschutzerklärung – Tomu",
   "confirm_page_doc_title": "Anmeldung bestätigen – Tomu",
-  "unsubscribe_page_doc_title": "Abmelden – Tomu"
+  "unsubscribe_page_doc_title": "Abmelden – Tomu",
+  "lang_switcher_label": "Sprache",
+  "lang_de": "Deutsch",
+  "lang_en": "English",
+  "legal_translation_notice": "Die deutsche Fassung ist maßgeblich.",
+  "legal_translation_link": "Zur deutschen Fassung"
 }

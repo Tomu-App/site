@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Db } from "./db/index";
 import { buildConfirmationMail, type ConfirmationMail } from "./mail";
-import { normalizeEmail, requestSubscription } from "./subscriptions";
+import { normalizeEmail, requestSubscription, type MailLocale } from "./subscriptions";
 import { signToken } from "./tokens";
 
 export type SubscribeDeps = {
@@ -33,7 +33,14 @@ const schema = z.object({
   email: z.string(),
   consent: z.literal(true),
   turnstileToken: z.string().min(1),
+  // Unknown or missing values fall back to German.
+  locale: z.enum(["de", "en"]).catch("de"),
 });
+
+const LINK_PATHS: Record<MailLocale, { confirm: string; unsubscribe: string }> = {
+  de: { confirm: "/bestaetigen", unsubscribe: "/abmelden" },
+  en: { confirm: "/en/confirm", unsubscribe: "/en/unsubscribe" },
+};
 
 const OK: SubscribeResponse = { status: 200, body: { ok: true } };
 
@@ -51,7 +58,7 @@ export async function handleSubscribe(deps: SubscribeDeps, body: unknown): Promi
 
   let result;
   try {
-    result = await requestSubscription(deps.db, email, deps.now);
+    result = await requestSubscription(deps.db, email, deps.now, parsed.data.locale);
   } catch (e) {
     // Drizzle errors embed query params (the address): log the name only.
     console.error("subscribe db failed", (e as Error)?.name ?? "unknown");
@@ -60,13 +67,19 @@ export async function handleSubscribe(deps: SubscribeDeps, body: unknown): Promi
   if (result.action === "send") {
     // Fire and forget: the response must not depend on (or time) mail work.
     const { id, email: to } = result;
-    deps.defer(sendConfirmation(deps, id, to));
+    deps.defer(sendConfirmation(deps, id, to, parsed.data.locale));
   }
   return OK;
 }
 
-async function sendConfirmation(deps: SubscribeDeps, id: string, to: string): Promise<void> {
+async function sendConfirmation(
+  deps: SubscribeDeps,
+  id: string,
+  to: string,
+  locale: MailLocale,
+): Promise<void> {
   try {
+    const paths = LINK_PATHS[locale];
     const [confirm, unsubscribe] = await Promise.all([
       signToken(deps.jwtSecret, id, "confirm", deps.now),
       signToken(deps.jwtSecret, id, "unsubscribe", deps.now),
@@ -75,8 +88,9 @@ async function sendConfirmation(deps: SubscribeDeps, id: string, to: string): Pr
       buildConfirmationMail({
         to,
         from: deps.mailFrom,
-        confirmUrl: `${deps.baseUrl}/bestaetigen?token=${confirm}`,
-        unsubscribeUrl: `${deps.baseUrl}/abmelden?token=${unsubscribe}`,
+        locale,
+        confirmUrl: `${deps.baseUrl}${paths.confirm}?token=${confirm}`,
+        unsubscribeUrl: `${deps.baseUrl}${paths.unsubscribe}?token=${unsubscribe}`,
       }),
     );
   } catch (e) {

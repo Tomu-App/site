@@ -1,4 +1,5 @@
 import * as m from "../paraglide/messages.js";
+import type { MailLocale } from "./subscriptions";
 
 export type ConfirmationMail = {
   to: string;
@@ -8,16 +9,18 @@ export type ConfirmationMail = {
   html: string;
 };
 
-const opts = { locale: "de" } as const;
-const t = {
-  subject: () => String(m.mail_confirm_subject({}, opts)),
-  greeting: () => String(m.mail_confirm_greeting({}, opts)),
-  intro: () => String(m.mail_confirm_intro({}, opts)),
-  cta: () => String(m.mail_confirm_cta({}, opts)),
-  hint: () => String(m.mail_confirm_link_hint({}, opts)),
-  ignore: () => String(m.mail_confirm_ignore({}, opts)),
-  unsubscribe: () => String(m.mail_confirm_unsubscribe({}, opts)),
-  signoff: () => String(m.mail_confirm_signoff({}, opts)),
+const translator = (locale: MailLocale) => {
+  const opts = { locale };
+  return {
+    subject: () => String(m.mail_confirm_subject({}, opts)),
+    greeting: () => String(m.mail_confirm_greeting({}, opts)),
+    intro: () => String(m.mail_confirm_intro({}, opts)),
+    cta: () => String(m.mail_confirm_cta({}, opts)),
+    hint: () => String(m.mail_confirm_link_hint({}, opts)),
+    ignore: () => String(m.mail_confirm_ignore({}, opts)),
+    unsubscribe: () => String(m.mail_confirm_unsubscribe({}, opts)),
+    signoff: () => String(m.mail_confirm_signoff({}, opts)),
+  };
 };
 
 const esc = (s: string) =>
@@ -28,7 +31,9 @@ export function buildConfirmationMail(p: {
   from: string;
   confirmUrl: string;
   unsubscribeUrl: string;
+  locale: MailLocale;
 }): ConfirmationMail {
+  const t = translator(p.locale);
   const text = [
     t.greeting(),
     "",
@@ -46,7 +51,7 @@ export function buildConfirmationMail(p: {
   ].join("\n");
 
   const html = `<!doctype html>
-<html lang="de"><body>
+<html lang="${p.locale}"><body>
 <p>${esc(t.greeting())}</p>
 <p>${esc(t.intro())}</p>
 <p><a href="${esc(p.confirmUrl)}">${esc(t.cta())}</a></p>

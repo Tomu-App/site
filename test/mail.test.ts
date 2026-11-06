@@ -8,6 +8,7 @@ const mail = buildConfirmationMail({
   from: "hallo@tomu.foo",
   confirmUrl,
   unsubscribeUrl,
+  locale: "de",
 });
 
 describe("buildConfirmationMail", () => {
@@ -29,5 +30,32 @@ describe("buildConfirmationMail", () => {
   });
   it("contains the ignore hint", () => {
     expect(mail.text).toContain("Wenn du dich nicht angemeldet hast");
+  });
+  it("sets lang de in html", () => {
+    expect(mail.html).toContain('<html lang="de">');
+  });
+});
+
+describe("buildConfirmationMail (en)", () => {
+  const enConfirm = "https://tomu.foo/en/confirm?token=abc.def.ghi";
+  const enUnsub = "https://tomu.foo/en/unsubscribe?token=xyz.uvw.rst";
+  const en = buildConfirmationMail({
+    to: "gran@example.com",
+    from: "hallo@tomu.foo",
+    confirmUrl: enConfirm,
+    unsubscribeUrl: enUnsub,
+    locale: "en",
+  });
+  it("uses English subject and copy", () => {
+    expect(en.subject).not.toBe(mail.subject);
+    expect(en.subject).toMatch(/confirm/i);
+    expect(en.text).toContain("If you did not sign up");
+    expect(en.html).toContain('<html lang="en">');
+  });
+  it("contains the /en links", () => {
+    for (const body of [en.text, en.html]) {
+      expect(body).toContain(enConfirm);
+      expect(body).toContain(enUnsub);
+    }
   });
 });

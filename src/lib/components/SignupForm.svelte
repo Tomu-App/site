@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as m from "#lib/paraglide/messages.js";
-  import { localizeHref } from "#lib/paraglide/runtime.js";
+  import { getLocale, localizeHref } from "#lib/paraglide/runtime.js";
   import Turnstile from "./Turnstile.svelte";
 
   type Status =
@@ -30,7 +30,7 @@
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, consent: true, turnstileToken: token }),
+        body: JSON.stringify({ email, consent: true, turnstileToken: token, locale: getLocale() }),
       });
       if (res.ok) {
         status = "success";

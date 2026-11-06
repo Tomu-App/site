@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Logo from "#lib/components/Logo.svelte";
   import SignupForm from "#lib/components/SignupForm.svelte";
   import * as m from "#lib/paraglide/messages.js";
   import { localizeHref } from "#lib/paraglide/runtime.js";
@@ -16,11 +15,7 @@
   <meta name="description" content={m.site_description()} />
 </svelte:head>
 
-<div class="mx-auto flex min-h-screen max-w-2xl flex-col px-6 py-8">
-  <header>
-    <Logo />
-  </header>
-
+<div class="mx-auto flex min-h-full max-w-2xl flex-col px-6 pb-8">
   <main class="flex-1 space-y-12 py-12">
     <section>
       <h1 class="text-4xl leading-tight font-bold sm:text-5xl">{m.home_pitch()}</h1>

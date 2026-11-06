@@ -81,6 +81,32 @@ describe("handleSubscribe", () => {
     expect(await verifyToken(env.JWT_SECRET, c, "confirm", T)).toBe(row.id);
     expect(await verifyToken(env.JWT_SECRET, u, "unsubscribe", T)).toBe(row.id);
   });
+  it("defaults to German when locale is missing or unknown", async () => {
+    await handleSubscribe(make(), good);
+    await flush();
+    expect(sent[0].text).toContain("/bestaetigen?token=");
+    expect((await db.select().from(subscribers))[0].locale).toBe("de");
+    sent = [];
+    deferred = [];
+    await env.DB.prepare("delete from subscribers").run();
+    expect(await handleSubscribe(make(), { ...good, locale: "fr" })).toEqual({
+      status: 200,
+      body: { ok: true },
+    });
+    await flush();
+    expect(sent[0].text).toContain("/bestaetigen?token=");
+  });
+  it("sends an English mail with /en links and stores the locale", async () => {
+    await handleSubscribe(make(), { ...good, locale: "en" });
+    await flush();
+    const [row] = await db.select().from(subscribers);
+    expect(row.locale).toBe("en");
+    const c = sent[0].text.match(/https:\/\/tomu\.foo\/en\/confirm\?token=([^\s"]+)/)![1];
+    const u = sent[0].text.match(/https:\/\/tomu\.foo\/en\/unsubscribe\?token=([^\s"]+)/)![1];
+    expect(await verifyToken(env.JWT_SECRET, c, "confirm", T)).toBe(row.id);
+    expect(await verifyToken(env.JWT_SECRET, u, "unsubscribe", T)).toBe(row.id);
+    expect(sent[0].subject).toMatch(/confirm/i);
+  });
   it("answers identically for confirmed address without sending", async () => {
     const fresh = await handleSubscribe(make(), good);
     const [row] = await db.select().from(subscribers);
