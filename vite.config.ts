@@ -8,6 +8,7 @@ import { defineConfig, type Plugin } from "vite";
 // Paraglide 3.1 resolves `../runtime.js` from its virtual message modules to a backslash path on Windows. That is a
 // different module id than the normalized one everything else imports, so the bundle gets two runtimes and
 // messages ignore the per-request locale (English pages render German). Resolve it to the normalized id instead.
+// Upstream: https://github.com/opral/paraglide-js/issues/877. Remove this plugin once that is fixed.
 const paraglideRuntimeIdFix = (): Plugin => ({
   name: "paraglide-runtime-id-fix",
   enforce: "pre",
