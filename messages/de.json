@@ -1,3 +1,11 @@
 {
-  "$schema": "https://inlang.com/schema/inlang-message-format"
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "mail_confirm_subject": "Bitte bestätige deine Anmeldung bei Tomu",
+  "mail_confirm_greeting": "Hallo,",
+  "mail_confirm_intro": "du möchtest Neuigkeiten von Tomu per E-Mail bekommen. Bitte bestätige dazu deine Anmeldung.",
+  "mail_confirm_cta": "Anmeldung bestätigen",
+  "mail_confirm_link_hint": "Der Link ist 48 Stunden gültig.",
+  "mail_confirm_ignore": "Wenn du dich nicht angemeldet hast, kannst du diese Mail einfach ignorieren. Dann passiert nichts weiter.",
+  "mail_confirm_unsubscribe": "Du möchtest dich abmelden oder deine Daten löschen lassen?",
+  "mail_confirm_signoff": "Dein Tomu-Team"
 }

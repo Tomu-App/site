@@ -17,7 +17,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply DB --local",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
-    "test": "vitest run"
+    "test": "vitest run",
+    "pretest": "paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide"
   },
   "devDependencies": {
     "@cloudflare/vitest-plugin": "^1.5.1",
@@ -46,6 +47,7 @@
   },
   "packageManager": "pnpm@12.16.1",
   "dependencies": {
-    "jose": "^6.2.15"
+    "jose": "^6.2.15",
+    "zod": "^4.6.7"
   }
 }

@@ -169,6 +169,9 @@ importers:
       jose:
         specifier: ^6.2.15
         version: 6.2.15
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
     devDependencies:
       '@cloudflare/vitest-plugin':
         specifier: ^1.5.1
@@ -2177,6 +2180,9 @@ packages:
   zod@4.6.6:
     resolution: {integrity: sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==}
 
+  zod@4.6.7:
+    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
+
 snapshots:
 
   '@bytecodealliance/jco-node-fs-darwin-arm64@0.3.2':
@@ -3550,3 +3556,5 @@ snapshots:
   zimmerframe@1.1.5: {}
 
   zod@4.6.6: {}
+
+  zod@4.6.7: {}
