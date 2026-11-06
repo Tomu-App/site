@@ -1,0 +1,9 @@
+{
+  // Read only by @sveltejs/adapter-cloudflare (see vite.config.ts). The adapter writes its
+  // generated SvelteKit handler to this file's `main`; the deployed entry is src/worker.ts
+  // (wrangler.jsonc), which imports that handler. Keep `assets` in sync with wrangler.jsonc.
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "tomu-site",
+  "main": ".svelte-kit/cloudflare/_worker.js",
+  "assets": { "binding": "ASSETS", "directory": ".svelte-kit/cloudflare" },
+}

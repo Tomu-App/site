@@ -12,7 +12,11 @@ export default defineConfig({
         // Force runes mode for the project, except for libraries. Can be removed in svelte 6.
         runes: ({ filename }) => (filename.split(/[/\\]/).includes("node_modules") ? undefined : true),
       },
-      adapter: adapter(),
+      // The adapter overwrites `main` of its config, so it gets its own file; dev bindings still come from wrangler.jsonc.
+      adapter: adapter({
+        config: "wrangler.sveltekit.jsonc",
+        platformProxy: { configPath: "wrangler.jsonc" },
+      }),
     }),
 
     paraglideVitePlugin({
