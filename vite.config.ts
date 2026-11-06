@@ -23,7 +23,7 @@ export default defineConfig({
           "default-src": ["self"],
           "script-src": ["self", "https://challenges.cloudflare.com"],
           "frame-src": ["https://challenges.cloudflare.com"],
-          "connect-src": ["self"],
+          "connect-src": ["self", "https://challenges.cloudflare.com"],
           "img-src": ["self", "data:"],
           "style-src": ["self", "unsafe-inline"],
           "object-src": ["none"],

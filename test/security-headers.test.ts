@@ -8,6 +8,11 @@ describe("withSecurityHeaders", () => {
     expect(r.headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(r.headers.get("Content-Security-Policy")).toBe("frame-ancestors 'none'");
   });
+  it("sets no-store but keeps an existing Cache-Control", () => {
+    expect(withSecurityHeaders(new Response("x")).headers.get("Cache-Control")).toBe("no-store");
+    const r = withSecurityHeaders(new Response("x", { headers: { "Cache-Control": "max-age=60" } }));
+    expect(r.headers.get("Cache-Control")).toBe("max-age=60");
+  });
   it("keeps an existing CSP", () => {
     const r = withSecurityHeaders(
       new Response("x", { headers: { "Content-Security-Policy": "default-src 'self'" } }),

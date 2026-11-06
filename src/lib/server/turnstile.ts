@@ -6,7 +6,11 @@ export async function verifyTurnstile(secret: string, token: string, ip: string 
     form.append("secret", secret);
     form.append("response", token);
     if (ip) form.append("remoteip", ip);
-    const res = await fetch(SITEVERIFY, { method: "POST", body: form });
+    const res = await fetch(SITEVERIFY, {
+      method: "POST",
+      body: form,
+      signal: AbortSignal.timeout(5000),
+    });
     if (!res.ok) return false;
     const data = (await res.json()) as { success?: boolean };
     return data.success === true;

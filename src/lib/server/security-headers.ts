@@ -9,6 +9,8 @@ export function withSecurityHeaders(response: Response): Response {
   const res = new Response(response.body, response);
   res.headers.set("Referrer-Policy", "no-referrer");
   res.headers.set("X-Content-Type-Options", "nosniff");
+  // Dynamic responses (token pages, /api) must never be cached; keep any explicit Cache-Control.
+  if (!res.headers.has("Cache-Control")) res.headers.set("Cache-Control", "no-store");
   if (!res.headers.has("Content-Security-Policy")) {
     res.headers.set("Content-Security-Policy", "frame-ancestors 'none'");
   }
