@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "tomu-site",
+  "compatibility_date": "2026-11-06",
+  "compatibility_flags": ["nodejs_als"],
+  "main": ".svelte-kit/cloudflare/_worker.js",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".svelte-kit/cloudflare",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tomu-site",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "vars": { "BASE_URL": "https://tomu.foo", "MAIL_FROM": "hallo@tomu.foo" },
+  "workers_dev": true,
+  "preview_urls": true,
+}
