@@ -36,6 +36,7 @@ export default defineConfig({
             JWT_SECRET: "test-secret-please-change",
             // workerd tests cannot read files; Node reads both configs for the drift guard.
             WRANGLER_ASSETS: JSON.stringify(readJsonc("./wrangler.jsonc").assets),
+            WRANGLER_VARS: JSON.stringify(readJsonc("./wrangler.jsonc").vars),
             WRANGLER_SVELTEKIT_ASSETS: JSON.stringify(readJsonc("./wrangler.sveltekit.jsonc").assets),
           },
         },

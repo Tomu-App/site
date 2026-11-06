@@ -6,26 +6,28 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
 
 concurrency:
   group: preview-pr-${{ github.event.number }}
   cancel-in-progress: true
 
 env:
-  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-  GH_TOKEN: ${{ github.token }}
   PREVIEW_NAME: pr-${{ github.event.number }}
 
 jobs:
   preview:
-    # Same-repo PRs only: fork PRs get no secrets and only run CI.
+    # Same-repo PRs only (fork PRs get no secrets and only run CI). Not for Dependabot.
     if: >-
       github.event.action != 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]' &&
       vars.DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
+    # CLOUDFLARE_API_TOKEN is an environment secret of "preview".
+    environment: preview
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
@@ -37,7 +39,13 @@ jobs:
       - run: pnpm build
       - name: Apply D1 migrations (shared Preview database)
         run: pnpm exec wrangler d1 migrations apply PREVIEW_DB --remote --config wrangler.preview-migrations.jsonc
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
       - name: Deploy Preview
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           pnpm exec wrangler preview --name "$PREVIEW_NAME" --json \
             --message "PR #${{ github.event.number }} ${{ github.event.pull_request.head.sha }}" > preview.out
@@ -50,6 +58,8 @@ jobs:
           fi
           echo "PREVIEW_URL=$URL" >> "$GITHUB_ENV"
       - name: Comment Preview URL on the PR
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           MARKER='<!-- tomu-site-preview -->'
           BODY="$MARKER
@@ -67,8 +77,12 @@ jobs:
     if: >-
       github.event.action == 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]' &&
       vars.DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
+    environment: preview
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
@@ -77,4 +91,7 @@ jobs:
           cache: true
           require-lockfile: true
       - name: Delete Preview
-        run: pnpm exec wrangler preview delete --name "$PREVIEW_NAME" --skip-confirmation
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler preview delete --name "$PREVIEW_NAME" --skip-confirmation || echo "No Preview to delete (or already deleted)"

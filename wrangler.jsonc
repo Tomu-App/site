@@ -13,7 +13,7 @@
     {
       "binding": "DB",
       "database_name": "tomu-site",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "7dce7b74-f8c8-4941-9799-a045d1b84a4a",
       "migrations_dir": "migrations",
     },
   ],
@@ -38,7 +38,7 @@
       {
         "binding": "DB",
         "database_name": "tomu-site-preview",
-        "database_id": "00000000-0000-0000-0000-000000000000",
+        "database_id": "d844aeb6-fa9a-4f2a-86eb-02a57729e805",
         "migrations_dir": "migrations",
       },
     ],

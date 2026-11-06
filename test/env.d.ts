@@ -7,6 +7,7 @@ declare global {
       TEST_MIGRATIONS: D1Migration[];
       JWT_SECRET: string;
       WRANGLER_ASSETS: string;
+      WRANGLER_VARS: string;
       WRANGLER_SVELTEKIT_ASSETS: string;
     }
   }

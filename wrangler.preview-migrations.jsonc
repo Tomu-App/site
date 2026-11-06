@@ -8,7 +8,7 @@
     {
       "binding": "PREVIEW_DB",
       "database_name": "tomu-site-preview",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "d844aeb6-fa9a-4f2a-86eb-02a57729e805",
       "migrations_dir": "migrations",
     },
   ],
