@@ -8,13 +8,12 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/setup@v3
         with:
-          node-version: lts/*
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+          runtime: node@lts
+          cache: true
+          require-lockfile: true
       - run: pnpm types:check
       - run: pnpm build
       - run: pnpm check
