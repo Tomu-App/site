@@ -4,7 +4,7 @@ import { withSecurityHeaders } from "../src/lib/server/security-headers";
 describe("withSecurityHeaders", () => {
   it("adds all three headers", () => {
     const r = withSecurityHeaders(new Response("x"));
-    expect(r.headers.get("Referrer-Policy")).toBe("no-referrer");
+    expect(r.headers.get("Referrer-Policy")).toBe("strict-origin");
     expect(r.headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(r.headers.get("Content-Security-Policy")).toBe("frame-ancestors 'none'");
   });

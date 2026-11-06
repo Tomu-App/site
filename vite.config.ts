@@ -35,7 +35,7 @@ export default defineConfig({
       // English route dirs also exist unprefixed; only the localized URLs may be prerendered (no duplicate /privacy.html).
       prerender: {
         handleUnseenRoutes: "ignore",
-        entries: ["/", "/en", "/impressum", "/datenschutz", "/en/legal-notice", "/en/privacy"],
+        entries: ["/", "/en", "/impressum", "/datenschutz", "/en/legal-notice", "/en/privacy", "/bar"],
       },
       csp: {
         mode: "auto",
