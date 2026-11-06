@@ -19,7 +19,7 @@ Nach Änderungen an `wrangler.jsonc` `pnpm gen` ausführen und `worker-configura
 
 ## Lokale Umgebungsvariablen
 
-Secrets liegen in `.env` (Produktionswerte, nur lokal, nie committen; Upload mit `pnpm exec wrangler secret bulk .env`) und/oder `.env.local` (Entwicklungswerte). `wrangler dev` und `vite dev` laden beide, `.env.local` überschreibt `.env`. Vorlage: `.env.example`. Eine `.dev.vars`-Datei darf nicht existieren, sonst ignoriert Wrangler die `.env`-Dateien.
+Secrets liegen in `.env.production` (Produktionswerte, nur lokal, nie committen; Upload mit `pnpm exec wrangler secret bulk .env.production`) und `.env.local` (Entwicklungswerte). `vite dev` und `wrangler dev` nutzen nur `.env.local`; `.env.production` lädt Vite nur beim Build. Keine `.env` anlegen: die lädt Vite in jedem Modus, auch in der Entwicklung. Vorlage: `.env.example`. Eine `.dev.vars`-Datei darf nicht existieren, sonst ignoriert Wrangler die `.env`-Dateien.
 
 ## Einmaliges Setup
 
@@ -33,7 +33,7 @@ Build und Deploy laufen komplett über GitHub Actions (kein Workers Builds). Pus
 3. Repo-Variablen setzen (oder in beiden Environments): `CLOUDFLARE_ACCOUNT_ID`, `TURNSTILE_SITE_KEY` (öffentlicher Prod-Site-Key, wird beim Prod-Build eingebettet). `DEPLOY_ENABLED` kommt erst in Schritt 9.
 4. Domain `tomu.foo` in Cloudflare unter Email Service, Email Sending einrichten (SPF, DKIM und DMARC-Einträge setzen und prüfen lassen). Bis das erledigt ist, gehen Mails nur an verifizierte Adressen des eigenen Accounts.
 5. Turnstile-Widget für `tomu.foo` anlegen. Der Site Key ist öffentlich, der Secret Key geheim. Previews verwenden die Turnstile-Testkeys und brauchen keinen Hostname `*.workers.dev` im Widget. Soll eine Preview mit dem echten Widget laufen, muss der Preview-Hostname im Widget stehen.
-6. Prod-Secrets setzen: `JWT_SECRET` (erzeugen mit `openssl rand -base64 48`) und `TURNSTILE_SECRET`, entweder einzeln mit `pnpm exec wrangler secret put JWT_SECRET` bzw. `pnpm exec wrangler secret put TURNSTILE_SECRET` oder gesammelt aus `.env` mit `pnpm exec wrangler secret bulk .env`. Der Worker `tomu-site` muss dafür schon existieren: einmal `pnpm build && pnpm exec wrangler deploy` lokal ausführen oder den ersten Deploy abwarten und die Secrets danach setzen.
+6. Prod-Secrets setzen: `JWT_SECRET` (erzeugen mit `openssl rand -base64 48`) und `TURNSTILE_SECRET`, entweder einzeln mit `pnpm exec wrangler secret put JWT_SECRET` bzw. `pnpm exec wrangler secret put TURNSTILE_SECRET` oder gesammelt aus `.env.production` mit `pnpm exec wrangler secret bulk .env.production`. Der Worker `tomu-site` muss dafür schon existieren: einmal `pnpm build && pnpm exec wrangler deploy` lokal ausführen oder den ersten Deploy abwarten und die Secrets danach setzen.
 7. Preview-Secrets setzen (getrennt von Produktion, wirken auf neu angelegte Previews): eigenes `JWT_SECRET` und das Turnstile-Testsecret `1x0000000000000000000000000000000AA` als `TURNSTILE_SECRET`.
    - `pnpm exec wrangler preview base-config secret put JWT_SECRET`
    - `pnpm exec wrangler preview base-config secret put TURNSTILE_SECRET`

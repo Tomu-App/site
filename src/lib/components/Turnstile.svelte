@@ -1,5 +1,6 @@
 <script lang="ts">
   import { TURNSTILE_SITE_KEY } from "$app/env/public";
+  import { getLocale } from "#lib/paraglide/runtime.js";
 
   interface TurnstileApi {
     render: (el: HTMLElement, options: Record<string, unknown>) => string;
@@ -54,7 +55,9 @@
         if (cancelled) return;
         widgetId = turnstile.render(container, {
           sitekey: TURNSTILE_SITE_KEY,
-          language: "de",
+          language: getLocale(),
+          // Shows the widget only when Cloudflare needs an interaction; keeps the form compact.
+          appearance: "interaction-only",
           callback: (token: string) => onToken(token),
           "expired-callback": () => onToken(null),
           "error-callback": () => onToken(null),

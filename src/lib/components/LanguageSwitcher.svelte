@@ -33,7 +33,7 @@
           lang={locale}
           aria-current={locale === getLocale() ? "true" : undefined}
           onclick={(event) => onclick(event, locale)}
-          class="flex min-h-12 min-w-12 items-center justify-center rounded-lg px-4 text-lg font-semibold underline-offset-4 hover:underline aria-[current=true]:bg-accent aria-[current=true]:text-accent-foreground"
+          class="flex min-h-12 min-w-12 items-center justify-center rounded-lg px-4 text-lg font-semibold text-door-muted hover:text-door-ink hover:underline aria-[current=true]:bg-door-deep aria-[current=true]:text-door-ink"
           >{names[locale]()}</a
         >
       </li>
