@@ -40,7 +40,7 @@ CI (`.github/workflows/ci.yml`) runs check, lint and tests. `deploy.yml` deploys
 - Never reveal whether an address is registered: every valid sign-up returns the same response.
 - Never log email addresses, tokens or full URLs with tokens. Never store IP addresses.
 - Confirm and unsubscribe pages act only on POST (button), never on GET, so mail scanners cannot trigger them.
-- The logo is a placeholder at `src/lib/assets/logo.svg`, included only via `Logo.svelte`; keep it replaceable in one place.
+- The logo (cloud) is at `src/lib/assets/logo.svg` (source copy in `static/logo.svg`), included only via `Logo.svelte`; keep it replaceable in one place.
 - Dark mode follows the browser or OS setting only; there is no theme switcher.
 - Dev env comes only from `.env.local`; production values live in `.env.production` (Vite loads it only for builds). Do not create a plain `.env` (Vite loads it in every mode) or `.dev.vars` (Wrangler would then ignore the `.env.*` files). Never commit `.env*` files except `.env.example`.
 - Production builds set `REQUIRE_PROD_CONFIG=1`, which fails on an empty `TURNSTILE_SITE_KEY` or placeholders in the legal notice.
