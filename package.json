@@ -44,5 +44,8 @@
     "#lib": "./src/lib/index.js",
     "#lib/*": "./src/lib/*"
   },
-  "packageManager": "pnpm@12.16.1"
+  "packageManager": "pnpm@12.16.1",
+  "dependencies": {
+    "jose": "^6.2.15"
+  }
 }
