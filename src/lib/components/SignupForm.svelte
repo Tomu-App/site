@@ -3,7 +3,8 @@
   import { localizeHref } from "#lib/paraglide/runtime.js";
   import Turnstile from "./Turnstile.svelte";
 
-  type Status = "idle" | "submitting" | "success" | "captcha" | "invalid" | "rate_limited" | "error";
+  type Status =
+    "idle" | "submitting" | "success" | "captcha" | "captcha_wait" | "invalid" | "rate_limited" | "error";
 
   let email = $state("");
   let token = $state<string | null>(null);
@@ -13,7 +14,7 @@
   async function submit(event: SubmitEvent) {
     event.preventDefault();
     if (!token) {
-      status = "captcha";
+      status = "captcha_wait";
       return;
     }
     status = "submitting";
@@ -42,7 +43,9 @@
   const errorText = $derived.by(() => {
     switch (status) {
       case "captcha":
-        return token ? m.signup_error_captcha() : m.signup_captcha_wait();
+        return m.signup_error_captcha();
+      case "captcha_wait":
+        return m.signup_captcha_wait();
       case "invalid":
         return m.signup_error_invalid();
       case "rate_limited":

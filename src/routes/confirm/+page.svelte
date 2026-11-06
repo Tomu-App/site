@@ -3,6 +3,10 @@
   let { data, form } = $props();
 </script>
 
+<svelte:head>
+  <title>{m.confirm_page_doc_title()}</title>
+</svelte:head>
+
 <main class="mx-auto max-w-xl p-6 text-center">
   {#if form?.result === "confirmed"}
     <h1 class="text-3xl font-bold">{m.confirm_page_done()}</h1>

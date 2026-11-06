@@ -42,5 +42,9 @@
   "nav_home": "Tomu, zur Startseite",
   "footer_legal_notice": "Impressum",
   "footer_privacy": "Datenschutz",
-  "footer_github": "GitHub"
+  "footer_github": "GitHub",
+  "legal_notice_page_title": "Impressum – Tomu",
+  "privacy_page_title": "Datenschutzerklärung – Tomu",
+  "confirm_page_doc_title": "Anmeldung bestätigen – Tomu",
+  "unsubscribe_page_doc_title": "Abmelden – Tomu"
 }
