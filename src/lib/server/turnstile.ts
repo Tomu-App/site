@@ -1,5 +1,13 @@
 const SITEVERIFY = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
+interface SiteverifyResponse {
+  success?: boolean;
+  "error-codes"?: string[];
+  hostname?: string;
+  action?: string;
+}
+
+/** Never log the token, secret, IP or email: only Cloudflare's diagnostic fields. */
 export async function verifyTurnstile(secret: string, token: string, ip: string | null): Promise<boolean> {
   try {
     const form = new FormData();
@@ -11,10 +19,20 @@ export async function verifyTurnstile(secret: string, token: string, ip: string 
       body: form,
       signal: AbortSignal.timeout(5000),
     });
-    if (!res.ok) return false;
-    const data = (await res.json()) as { success?: boolean };
-    return data.success === true;
-  } catch {
+    const data = (await res.json().catch(() => ({}))) as SiteverifyResponse;
+    if (res.ok && data.success === true) return true;
+    console.warn(
+      JSON.stringify({
+        event: "turnstile_failed",
+        errorCodes: data["error-codes"] ?? [],
+        hostname: data.hostname ?? null,
+        action: data.action ?? null,
+        status: res.status,
+      }),
+    );
+    return false;
+  } catch (e) {
+    console.warn(JSON.stringify({ event: "turnstile_error", name: (e as { name?: string } | null)?.name }));
     return false;
   }
 }
