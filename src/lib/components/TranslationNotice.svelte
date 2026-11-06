@@ -6,7 +6,7 @@
 </script>
 
 {#if getLocale() !== "de"}
-  <p class="mb-8 rounded-lg bg-accent p-4 text-lg text-accent-foreground">
+  <p class="mb-10 max-w-[68ch] rounded-lg bg-door-deep px-5 py-4 text-lg">
     {m.legal_translation_notice()}
     <a href={localizeHref(path, { locale: "de" })} hreflang="de" lang="de" class="font-semibold underline"
       >{m.legal_translation_link()}</a

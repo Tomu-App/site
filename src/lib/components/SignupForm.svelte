@@ -69,21 +69,21 @@
   });
 </script>
 
-<section aria-labelledby="signup-title" class="rounded-2xl border-2 border-border bg-card p-6 sm:p-8">
-  <h2 id="signup-title" class="text-2xl font-bold sm:text-3xl">{m.signup_title()}</h2>
+<section id="signup" aria-labelledby="signup-title" class="max-w-xl scroll-mt-8">
+  <h2 id="signup-title" class="sr-only">{m.signup_title()}</h2>
 
   <noscript>
     <p class="mt-4 text-lg">{m.signup_noscript()}</p>
   </noscript>
 
   {#if status === "success"}
-    <p role="status" class="mt-6 rounded-lg bg-success p-5 text-xl font-semibold text-success-foreground">
+    <p role="status" class="rounded-lg bg-ok px-5 py-4 text-xl font-semibold text-ok-ink">
       {m.signup_success()}
     </p>
   {:else}
-    <form onsubmit={submit} class="mt-6 space-y-6">
+    <form onsubmit={submit} class="space-y-5">
       <div>
-        <label for="signup-email" class="block text-xl font-semibold">{m.signup_email_label()}</label>
+        <label for="signup-email" class="block text-lg font-semibold">{m.signup_email_label()}</label>
         <input
           id="signup-email"
           name="email"
@@ -92,15 +92,15 @@
           required
           maxlength="254"
           bind:value={email}
-          class="mt-2 w-full rounded-lg border-2 border-input px-4 py-4 text-xl"
+          class="mt-2 w-full rounded-lg border-2 border-field-line bg-field px-4 py-3.5 text-xl text-door-ink transition-colors hover:border-door-ink focus-visible:border-door-ink"
         />
       </div>
 
       <div class="flex items-start gap-4">
-        <input id="signup-consent" type="checkbox" required class="mt-1 h-7 w-7 shrink-0 accent-primary" />
-        <label for="signup-consent" class="text-lg">
+        <input id="signup-consent" type="checkbox" required class="check mt-0.5 h-7 w-7 shrink-0" />
+        <label for="signup-consent" class="text-base leading-relaxed text-door-muted">
           {m.signup_consent_text()}
-          <a href={localizeHref("/privacy")} class="font-semibold underline"
+          <a href={localizeHref("/privacy")} class="font-semibold text-door-ink underline"
             >{m.signup_consent_privacy_link()}</a
           >
         </label>
@@ -109,19 +109,12 @@
       <Turnstile bind:this={turnstile} onToken={(t) => (token = t)} />
 
       {#if errorText}
-        <p
-          role="alert"
-          class="rounded-lg bg-destructive p-4 text-lg font-semibold text-destructive-foreground"
-        >
+        <p role="alert" class="rounded-lg bg-error px-5 py-4 text-lg font-semibold text-error-ink">
           {errorText}
         </p>
       {/if}
 
-      <button
-        type="submit"
-        disabled={status === "submitting"}
-        class="w-full rounded-lg bg-primary px-8 py-5 text-2xl font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
-      >
+      <button type="submit" disabled={status === "submitting"} class="btn-action w-full sm:w-auto">
         {status === "submitting" ? m.signup_submitting() : m.signup_submit()}
       </button>
     </form>

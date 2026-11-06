@@ -31,7 +31,8 @@ export default defineConfig({
       // The adapter overwrites `main` of its config, so it gets its own file; dev bindings still come from wrangler.jsonc.
       adapter: adapter({
         config: "wrangler.sveltekit.jsonc",
-        platformProxy: { configPath: "wrangler.jsonc" },
+        // Dev secrets come only from .env.local; production values live in .env.production (Vite loads that only for builds).
+        platformProxy: { configPath: "wrangler.jsonc", envFiles: [".env.local"] },
       }),
       // English route dirs also exist unprefixed; only the localized URLs may be prerendered (no duplicate /privacy.html).
       prerender: {

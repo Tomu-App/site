@@ -4,6 +4,7 @@
   import favicon from "#lib/assets/logo.svg";
   import LanguageSwitcher from "#lib/components/LanguageSwitcher.svelte";
   import Logo from "#lib/components/Logo.svelte";
+  import * as m from "#lib/paraglide/messages.js";
   import { baseLocale, localizeHref, locales } from "#lib/paraglide/runtime.js";
   import { SITE_ORIGIN } from "#lib/site.ts";
 
@@ -27,11 +28,20 @@
 </svelte:head>
 
 <div class="flex min-h-screen flex-col">
-  <header class="mx-auto flex w-full max-w-2xl items-center justify-between gap-4 px-6 pt-8">
+  <header class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 pt-6 sm:px-10 sm:pt-8">
     <a href={localizeHref("/")} class="inline-block"><Logo /></a>
     <LanguageSwitcher />
   </header>
   <div class="flex-1">
     {@render children()}
   </div>
+  <footer class="mx-auto w-full max-w-6xl px-6 pb-10 sm:px-10">
+    <nav class="flex flex-wrap gap-x-8 gap-y-3 border-t-2 border-door-deep pt-8 text-lg">
+      <a href={localizeHref("/legal-notice")} class="underline">{m.footer_legal_notice()}</a>
+      <a href={localizeHref("/privacy")} class="underline">{m.footer_privacy()}</a>
+      <a href="https://github.com/Tomu-App" class="underline" target="_blank" rel="noopener noreferrer"
+        >{m.footer_github()}</a
+      >
+    </nav>
+  </footer>
 </div>
