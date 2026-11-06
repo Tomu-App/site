@@ -13,7 +13,10 @@
     <h1 class="text-3xl font-bold">{m.confirm_page_title()}</h1>
     <form method="POST" class="mt-8">
       <input type="hidden" name="token" value={data.token} />
-      <button type="submit" class="w-full rounded-lg bg-black px-8 py-5 text-2xl font-semibold text-white">
+      <button
+        type="submit"
+        class="w-full rounded-lg bg-primary px-8 py-5 text-2xl font-semibold text-primary-foreground"
+      >
         {m.mail_confirm_cta()}
       </button>
     </form>
