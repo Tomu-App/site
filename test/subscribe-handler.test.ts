@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getDb } from "../src/lib/server/db/index";
 import { subscribers } from "../src/lib/server/db/schema";
 import type { ConfirmationMail } from "../src/lib/server/mail";
-import { handleSubscribe, type SubscribeDeps } from "../src/lib/server/subscribe-handler";
+import { handleSubscribe, resolveBaseUrl, type SubscribeDeps } from "../src/lib/server/subscribe-handler";
 import { confirmSubscription } from "../src/lib/server/subscriptions";
 import { verifyToken } from "../src/lib/server/tokens";
 
@@ -153,5 +153,21 @@ describe("handleSubscribe", () => {
     expect(err).toHaveBeenCalledWith("subscribe db failed", "DrizzleQueryError");
     expect(JSON.stringify(err.mock.calls)).not.toContain("oma@");
     expect(deferred).toHaveLength(0);
+  });
+});
+
+describe("resolveBaseUrl", () => {
+  it("uses the configured base URL", () => {
+    expect(resolveBaseUrl("https://tomu.foo", new URL("https://other.example/api/subscribe"))).toBe(
+      "https://tomu.foo",
+    );
+  });
+  it("falls back to the request origin when empty or missing", () => {
+    const url = new URL("https://pr-7-tomu-site.x.workers.dev/api/subscribe");
+    expect(resolveBaseUrl("", url)).toBe("https://pr-7-tomu-site.x.workers.dev");
+    expect(resolveBaseUrl(undefined, url)).toBe("https://pr-7-tomu-site.x.workers.dev");
+  });
+  it("strips a trailing slash", () => {
+    expect(resolveBaseUrl("https://tomu.foo/", new URL("https://x.dev/"))).toBe("https://tomu.foo");
   });
 });

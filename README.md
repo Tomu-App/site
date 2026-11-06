@@ -23,16 +23,28 @@ Secrets liegen in `.env` (Produktionswerte, nur lokal, nie committen; Upload mit
 
 ## Einmaliges Setup
 
-1. D1 anlegen: `pnpm exec wrangler d1 create tomu-site --jurisdiction eu`, die ausgegebene `database_id` in `wrangler.jsonc` eintragen (aktuell ein Platzhalter aus Nullen), danach `pnpm gen`.
-2. Domain `tomu.foo` in Cloudflare unter Email Service, Email Sending einrichten (SPF, DKIM und DMARC-Einträge setzen und prüfen lassen).
-3. Turnstile-Widget für `tomu.foo` anlegen. Der Site Key ist öffentlich, der Secret Key geheim.
-4. Secrets setzen: `JWT_SECRET` (erzeugen mit `openssl rand -base64 48`) und `TURNSTILE_SECRET`, entweder einzeln mit `pnpm exec wrangler secret put JWT_SECRET` bzw. `pnpm exec wrangler secret put TURNSTILE_SECRET` oder gesammelt aus `.env` mit `pnpm exec wrangler secret bulk .env`.
-5. Workers Builds: Repository `Tomu-App/site` verbinden.
-   - Build-Befehl: `pnpm build`
-   - Deploy-Befehl: `pnpm db:migrate:remote && pnpm exec wrangler deploy`
-   - Build-Variable `TURNSTILE_SITE_KEY` (öffentlicher Site Key). Ohne sie bricht ein Produktions-Build ab, damit nie der Test-Key live geht. In CI (`CI=true`), bei `pnpm dev` und `pnpm test` gilt weiter der Test-Key.
-   - Preview-Einstellungen und Bindings getrennt von Production konfigurieren.
-6. Für die Custom Domain darf kein konfligierender DNS-Eintrag auf dem Apex existieren (A, AAAA oder CNAME), sonst lässt sich die Domain nicht dem Worker zuweisen.
+Build und Deploy laufen komplett über GitHub Actions (kein Workers Builds). Push auf `main` deployt Produktion (`.github/workflows/deploy.yml`), PRs aus demselben Repo bekommen eine Worker Preview `pr-<nummer>` (`.github/workflows/preview.yml`), die beim Schließen des PRs gelöscht wird. Previews sind öffentlich erreichbar. PRs aus Forks bekommen nur die Prüfungen aus `ci.yml`.
+
+1. D1-Datenbanken anlegen, beide in der EU:
+   - `pnpm exec wrangler d1 create tomu-site --jurisdiction eu`: `database_id` in `wrangler.jsonc` (Top-Level `d1_databases`) eintragen.
+   - `pnpm exec wrangler d1 create tomu-site-preview --jurisdiction eu`: `database_id` in `wrangler.jsonc` (`previews.d1_databases`) **und** in `wrangler.preview-migrations.jsonc` eintragen. Beide Stellen müssen dieselbe ID haben.
+   - Danach `pnpm gen`.
+2. API-Token anlegen (Cloudflare Dashboard, My Profile, API Tokens) mit minimalen Rechten: Account / Workers Scripts / Edit, Account / D1 / Edit, Account / Account Settings / Read. Als Repo-Secret `CLOUDFLARE_API_TOKEN` speichern (GitHub, Settings, Secrets and variables, Actions).
+3. Repo-Variablen setzen: `CLOUDFLARE_ACCOUNT_ID`, `TURNSTILE_SITE_KEY` (öffentlicher Prod-Site-Key, wird beim Prod-Build eingebettet). `DEPLOY_ENABLED` kommt erst in Schritt 9.
+4. Domain `tomu.foo` in Cloudflare unter Email Service, Email Sending einrichten (SPF, DKIM und DMARC-Einträge setzen und prüfen lassen). Bis das erledigt ist, gehen Mails nur an verifizierte Adressen des eigenen Accounts.
+5. Turnstile-Widget für `tomu.foo` anlegen. Der Site Key ist öffentlich, der Secret Key geheim. Previews verwenden die Turnstile-Testkeys und brauchen keinen Hostname `*.workers.dev` im Widget. Soll eine Preview mit dem echten Widget laufen, muss der Preview-Hostname im Widget stehen.
+6. Prod-Secrets setzen: `JWT_SECRET` (erzeugen mit `openssl rand -base64 48`) und `TURNSTILE_SECRET`, entweder einzeln mit `pnpm exec wrangler secret put JWT_SECRET` bzw. `pnpm exec wrangler secret put TURNSTILE_SECRET` oder gesammelt aus `.env` mit `pnpm exec wrangler secret bulk .env`. Der Worker `tomu-site` muss dafür schon existieren: einmal `pnpm build && pnpm exec wrangler deploy` lokal ausführen oder den ersten Deploy abwarten und die Secrets danach setzen.
+7. Preview-Secrets setzen (getrennt von Produktion, wirken auf neu angelegte Previews): eigenes `JWT_SECRET` und das Turnstile-Testsecret `1x0000000000000000000000000000000AA` als `TURNSTILE_SECRET`.
+   - `pnpm exec wrangler preview base-config secret put JWT_SECRET`
+   - `pnpm exec wrangler preview base-config secret put TURNSTILE_SECRET`
+   - Oder gesammelt: `pnpm exec wrangler preview base-config secret bulk <datei>` (JSON oder .env).
+8. Verifizierte Zieladressen für Previews: Adressen in Cloudflare Email Routing als Destination hinzufügen und bestätigen, dann in `wrangler.jsonc` unter `previews.send_email[0].allowed_destination_addresses` eintragen. Solange die Liste leer ist, kann eine Preview keine Mails versenden.
+9. Zum Schluss die Repo-Variable `DEPLOY_ENABLED` auf `true` setzen. Davor überspringen beide Workflows den Deploy, damit `main` nicht rot wird.
+10. Für die Custom Domain darf kein konfligierender DNS-Eintrag auf dem Apex existieren (A, AAAA oder CNAME), sonst lässt sich die Domain nicht dem Worker zuweisen.
+
+Build-Schutz: Nur der Produktions-Deploy setzt `REQUIRE_PROD_CONFIG=1`. Mit dem Flag bricht der Build ab, wenn `TURNSTILE_SITE_KEY` leer ist oder im Impressum Platzhalter stehen. Ohne das Flag (CI, Previews, `pnpm dev`, `pnpm test`, auch bei `CI=true`) gilt der Test-Key.
+
+Wer lokal einen Produktions-Build prüfen will: `REQUIRE_PROD_CONFIG=1 TURNSTILE_SITE_KEY=<key> pnpm build`.
 
 ## Lizenz
 

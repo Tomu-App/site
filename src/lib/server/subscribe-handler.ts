@@ -17,6 +17,12 @@ export type SubscribeDeps = {
   defer: (task: Promise<unknown>) => void;
 };
 
+/** Mail link base: configured BASE_URL, or the request origin when empty (PR previews). */
+export function resolveBaseUrl(envBaseUrl: string | undefined, requestUrl: URL): string {
+  const configured = envBaseUrl?.trim().replace(/\/+$/, "");
+  return configured ? configured : requestUrl.origin;
+}
+
 export type SubscribeResponse =
   | { status: 200; body: { ok: true } }
   | { status: 400; body: { error: "invalid" | "captcha" } }
