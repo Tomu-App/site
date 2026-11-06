@@ -1,4 +1,5 @@
 import MarkdownIt from "markdown-it";
+import { isProdNonCiBuild } from "../build-mode";
 import legal from "./legal.json";
 
 const values: Record<string, string> = {
@@ -30,5 +31,9 @@ export function renderLegalMarkdown(source: string): string {
     if (!(key in values)) throw new Error(`Unknown legal placeholder: ${key}`);
     return values[key];
   });
+  if (isProdNonCiBuild) {
+    const left = filled.match(/\[[A-ZÄÖÜ_ -]{3,}\]/);
+    if (left) throw new Error(`Unfilled placeholder in legal content: ${left[0]}`);
+  }
   return md.render(filled);
 }
