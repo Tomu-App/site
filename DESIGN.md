@@ -212,7 +212,7 @@ The palette is a cool enamel door, white paper, blue ballpoint ink and one red m
 
 ### Secondary
 
-- **Magnet Red** (`magnet`): the fridge magnet. It also colors the status dot before the "in development" line, the key part of the sample link, the key arrow, the text caret and, as `ring`, the focus outline. `magnet-light` is the lighter red used for the dark-mode focus ring.
+- **Magnet Red** (`magnet`): the fridge magnet. It also colors the status dot before the "in development" line, the text caret and, as `ring`, the focus outline. `magnet-light` is the lighter red used for the dark-mode focus ring.
 
 ### Neutral
 
@@ -279,7 +279,7 @@ Depth is physical. Only objects pinned to the door cast shadows. Type written on
 
 ### Shadow Vocabulary
 
-- **Paper** (`box-shadow: 0 1px 2px var(--slip-shadow), 0 18px 32px -18px var(--slip-shadow)`): slips and pinned notes. The small link label uses a lighter cut (`0 14px 26px -16px`).
+- **Paper** (`box-shadow: 0 1px 2px var(--slip-shadow), 0 18px 32px -18px var(--slip-shadow)`): slips and pinned notes.
 - **Magnet** (`box-shadow: inset 0 -3px 6px rgb(0 0 0 / 0.18), 0 2px 3px rgb(0 0 0 / 0.25), 0 8px 14px -6px rgb(0 0 0 / 0.35)`): the round magnet. The inset shade gives it its dome.
 - **Button** (`box-shadow: 0 2px 5px rgb(0 0 0 / 0.16)`): a slight lift on the action button. Pressing it moves the button down 1px.
 
@@ -334,9 +334,13 @@ A white ruled slip held by a centered magnet, carrying a handwritten list under 
 
 The replay control appears at 5600ms. With reduced motion, the final state renders at once and the replay control is not shown. The list is `aria-hidden`, and a screen-reader summary describes the change instead.
 
+### Label Tag
+
+How the app will show list labels (`LabelTag.svelte`): a small pill, 0.85rem bold Atkinson, 2px border, fully rounded. Shared labels are filled `pen` with white text; private labels are outlined in `tag-private` (#4f5a66, same in both modes, because tags sit on paper). Screen readers get the state ("geteilt" / "nur bei dir") as hidden text. Used on the demo note's title row and on the "So teilst du deine Listen" note.
+
 ### Magnet
 
-A 3.25rem red dome with the Magnet shadow. It sits on the top edge of every pinned note (2.4rem on the small link label) and is always decorative (`aria-hidden`).
+A 3.25rem red dome with the Magnet shadow. It sits on the top edge of every pinned note and is always decorative (`aria-hidden`).
 
 ## Do's and Don'ts
 

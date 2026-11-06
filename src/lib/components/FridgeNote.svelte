@@ -1,6 +1,7 @@
 <script lang="ts">
   import { flip } from "svelte/animate";
   import * as m from "#lib/paraglide/messages.js";
+  import LabelTag from "./LabelTag.svelte";
 
   // Sample content only: the app does not exist yet, so the note is labelled as an example.
   type Item = {
@@ -85,7 +86,10 @@
   <div class="slip px-6 sm:px-8">
     <span class="magnet pin" aria-hidden="true"></span>
     <p class="sample">{m.demo_label()}</p>
-    <p class="title font-hand font-bold" aria-hidden="true">{m.demo_list_title()}</p>
+    <div class="title-row" aria-hidden="true">
+      <p class="title font-hand font-bold">{m.demo_list_title()}</p>
+      <LabelTag name={m.label_family()} shared />
+    </div>
     <ul aria-hidden="true">
       {#each sorted as item (item.id)}
         <li animate:flip={{ duration: 600 }} class:done={item.done}>
@@ -155,6 +159,13 @@
     font-weight: 700;
     line-height: 1.5;
     rotate: -5deg;
+  }
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: var(--row);
   }
   .title {
     font-size: 1.75rem;

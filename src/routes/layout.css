@@ -34,6 +34,8 @@
   --error-ink: #7a1b12;
   --ring: #cf3427;
   --selection: #c4d1ec;
+  /* Private label tags on paper; same grey in both modes (slips stay paper). */
+  --tag-private: #4f5a66;
 }
 
 @media (prefers-color-scheme: dark) {

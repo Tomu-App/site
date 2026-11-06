@@ -1,5 +1,6 @@
 <script lang="ts">
   import FridgeNote from "#lib/components/FridgeNote.svelte";
+  import LabelTag from "#lib/components/LabelTag.svelte";
   import SignupForm from "#lib/components/SignupForm.svelte";
   import * as m from "#lib/paraglide/messages.js";
 
@@ -33,30 +34,35 @@
       </div>
     </section>
 
-    <section aria-labelledby="link-title" class="border-t-2 border-door-deep py-20 lg:py-28">
-      <h2 id="link-title" class="text-3xl font-bold sm:text-4xl">{m.link_title()}</h2>
-      <figure class="mt-10">
-        <figcaption class="sr-only">{m.link_example_label()}</figcaption>
-        <p class="label font-mono" aria-hidden="true">
-          <span class="magnet label-pin"></span>
-          <span class="path">list.tomu.foo/f3K9xQ2mLp7RvT1bN8cZaw</span><span class="key"
-            >#Qm8T0vXkJ2pLs9…</span
-          >
-        </p>
-        <div class="notes mt-8 grid gap-8 text-xl sm:grid-cols-2">
-          <p class="note-path">
-            <svg class="arrow" viewBox="0 0 40 40" aria-hidden="true"
-              ><path d="M8 34C10 22 14 13 22 6M22 6l-8 2.2M22 6l.6 8.2" /></svg
-            >
-            {m.link_path_note()}
-          </p>
-          <p class="note-key">
-            <svg class="arrow" viewBox="0 0 40 40" aria-hidden="true"
-              ><path d="M8 34C10 22 14 13 22 6M22 6l-8 2.2M22 6l.6 8.2" /></svg
-            >
-            {m.link_key_note()}
-          </p>
+    <section aria-labelledby="share-title" class="share border-t-2 border-door-deep py-20 lg:py-28">
+      <div>
+        <h2 id="share-title" class="text-3xl font-bold sm:text-4xl">{m.share_title()}</h2>
+        <ol class="steps mt-10 space-y-6 text-xl">
+          <li>{m.share_step_1()}</li>
+          <li>{m.share_step_2()}</li>
+          <li>{m.share_step_3()}</li>
+        </ol>
+        <p class="mt-8 text-lg text-door-muted">{m.share_private_note()}</p>
+      </div>
+      <figure class="share-demo">
+        <div class="share-note" aria-hidden="true">
+          <span class="magnet share-pin"></span>
+          <ul>
+            <li>
+              <span class="font-hand">{m.share_demo_list_1()}</span>
+              <LabelTag name={m.label_family()} shared />
+            </li>
+            <li>
+              <span class="font-hand">{m.share_demo_list_3()}</span>
+              <LabelTag name={m.share_demo_label_wg()} shared />
+            </li>
+            <li>
+              <span class="font-hand">{m.share_demo_list_2()}</span>
+              <LabelTag name={m.label_private_name()} shared={false} />
+            </li>
+          </ul>
         </div>
+        <figcaption class="mt-5 text-base text-door-muted">{m.share_demo_caption()}</figcaption>
       </figure>
     </section>
 
@@ -123,62 +129,71 @@
     translate: 0 -0.1em;
   }
 
-  /* The link as a white magnetic label on the door. */
-  .label {
-    position: relative;
-    display: inline-block;
-    max-width: 100%;
-    padding: 1.4rem 1.6rem 1.2rem;
-    background: var(--slip);
-    color: var(--pen);
-    font-size: clamp(1rem, 0.7rem + 1.2vw, 1.6rem);
-    line-height: 1.5;
-    overflow-wrap: anywhere;
-    border-radius: 2px;
-    rotate: -0.6deg;
-    box-shadow:
-      0 1px 2px var(--slip-shadow),
-      0 14px 26px -16px var(--slip-shadow);
+  /* How sharing works: steps on the door, a pinned note with labelled lists beside them. */
+  .share {
+    display: grid;
+    row-gap: 3.5rem;
   }
-  .label-pin {
-    position: absolute;
-    top: -1.2rem;
-    left: 1.4rem;
-    width: 2.4rem;
-    height: 2.4rem;
-  }
-  .key {
-    color: var(--magnet);
-    font-weight: 700;
-    text-decoration: underline wavy var(--magnet);
-    text-decoration-thickness: 2px;
-    text-underline-offset: 0.3em;
-  }
-  @media (prefers-color-scheme: dark) {
-    .key {
-      color: #b4261a;
-      text-decoration-color: #b4261a;
+  @media (min-width: 64rem) {
+    .share {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      column-gap: 5rem;
+      align-items: start;
     }
   }
-  .notes p {
-    position: relative;
-    padding-left: 3rem;
-    max-width: 30ch;
+  .steps {
+    counter-reset: step;
+    max-width: 34ch;
   }
-  .arrow {
+  .steps li {
+    position: relative;
+    padding-left: 3.25rem;
+    counter-increment: step;
+  }
+  .steps li::before {
+    content: counter(step);
     position: absolute;
     left: 0;
-    top: -0.4rem;
-    width: 2.2rem;
-    height: 2.2rem;
-    fill: none;
-    stroke: var(--door-ink);
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    top: 0.1rem;
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 999px;
+    background: var(--door-deep);
+    font-weight: 700;
   }
-  .note-key .arrow {
-    stroke: var(--magnet);
+  .share-demo {
+    width: min(100%, 28rem);
+    justify-self: center;
+  }
+  .share-note {
+    position: relative;
+    padding: 2.5rem 1.75rem 1.5rem;
+    background: var(--slip);
+    color: var(--pen);
+    border-radius: 2px;
+    rotate: 1deg;
+    box-shadow:
+      0 1px 2px var(--slip-shadow),
+      0 18px 32px -18px var(--slip-shadow);
+  }
+  .share-pin {
+    position: absolute;
+    top: -1.5rem;
+    left: 50%;
+    translate: -50% 0;
+  }
+  .share-note li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    font-size: 1.5rem;
+  }
+  .share-note li + li {
+    border-top: 2px solid var(--slip-rule);
   }
 
   /* The three points on one pinned note. */

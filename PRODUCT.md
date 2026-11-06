@@ -22,7 +22,7 @@ The visitor reads in German by default; English is a secondary audience (inferre
 
 ## Product Purpose
 
-Tomu is a shared list by link, for lists of any kind (to-dos, household tasks, packing lists, shopping lists; confirmed by the user: not a grocery-list product): no account, end-to-end encrypted, synced in real time, usable offline, and simple enough for an older person to use. One-sentence pitch (used verbatim as site copy): "Ein Link, eine Liste, alle sehen Änderungen sofort, und der Server kann nichts davon lesen." / "One link, one list, everyone sees changes right away, and the server can't read any of it."
+Tomu is a shared list by link, for lists of any kind (to-dos, household tasks, packing lists, shopping lists; confirmed by the user: not a grocery-list product): no account, end-to-end encrypted, synced in real time, usable offline, and simple enough for an older person to use. Sharing works through labels: share a label once, and every list with that label (including future ones) is shared. One-sentence pitch (used verbatim as site copy): "Gemeinsame Listen für Familie, WG und Freunde. Alle sehen Änderungen sofort, und niemand sonst kann mitlesen." / "Shared lists for family, flatmates and friends. Everyone sees changes right away, and nobody else can read along." Site visitors are mostly not developers: site copy stays in everyday words, no URLs, keys or crypto terms (user, 2026-11-06).
 
 The app is not built yet. This site exists before the app: it explains Tomu and collects newsletter sign-ups with double opt-in. Subscribers later receive updates the operator writes himself about development progress and the timeline (for example native apps).
 
@@ -32,11 +32,11 @@ Success for the site: people understand Tomu and confirm their sign-up, and the 
 
 The problem Tomu addresses: an older person writes a shopping list on paper or in WhatsApp, a grandchild retypes it and ticks items off in the shop, and later additions get lost. Existing apps such as Bring! or AnyList need accounts, are overloaded for older people, or can read list contents in plain text.
 
-Tomu's distinct mechanism: the link is the permission. The encryption key lives only in the URL fragment (`https://list.tomu.foo/<listId>#<key>`) and never reaches the server, so the server stores only ciphertext. No registration, no account, real-time sync, offline-first. A competitor with server-side accounts cannot truthfully claim "the server can't read any of it" together with "no account at all".
+Tomu's distinct mechanism: the link is the permission. The encryption key lives only in the URL fragment (`https://link.tomu.foo/<docId>#<key>`) and never reaches the server, so the server stores only ciphertext. No registration, no account, real-time sync, offline-first. A competitor with server-side accounts cannot truthfully claim "the server can't read any of it" together with "no account at all".
 
 ## Operating Context
 
-- Domain `tomu.foo`. The site runs on `tomu.foo/*`; the future list app will run on its own subdomain, `list.tomu.foo` (shared links: `https://list.tomu.foo/<listId>#<key>`; decided by the user 2026-11-06, replacing the earlier `tomu.foo/l/*` plan in `../docs`).
+- Domain `tomu.foo`. The site runs on `tomu.foo/*`; the future list app will run on its own subdomain, `link.tomu.foo` (shared links: `https://link.tomu.foo/<docId>#<key>`; decided by the user 2026-11-06, replacing the earlier `tomu.foo/l/*` plan in `../docs`).
 - Pages: home (`/`, prerendered, with sign-up form), legal notice and privacy policy (prerendered from Markdown in `src/lib/content/`), confirm and unsubscribe pages (server-rendered, reached from email links, each with a single button that performs the action via POST).
 - Sign-up flow: email field, required consent checkbox with link to the privacy policy, Cloudflare Turnstile check, then always the same message: "Almost done. Check your inbox and confirm your sign-up." Confirmation link valid for 48 hours; unsubscribe link never expires and deletes the record completely.
 - The confirmation email is plain (text plus simple HTML), sent from `Tomu <hallo@tomu.foo>`, with no external images, tracking links, or pixels.
