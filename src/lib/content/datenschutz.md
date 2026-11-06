@@ -1,7 +1,5 @@
 # Datenschutzerklärung
 
-> Platzhalter: Firmenname, Name, Anschrift und E-Mail stehen in `src/lib/content/legal.json` und müssen dort vor der Veröffentlichung ersetzt werden.
-
 ## Verantwortliche Stelle
 
 **{{businessName}}**  
