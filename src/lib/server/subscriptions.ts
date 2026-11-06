@@ -1,4 +1,4 @@
-import { and, eq, lt } from "drizzle-orm";
+import { and, eq, lt, sql } from "drizzle-orm";
 import type { Db } from "./db/index";
 import { subscribers } from "./db/schema";
 
@@ -17,45 +17,41 @@ export function normalizeEmail(raw: string): string | null {
 }
 
 export async function requestSubscription(db: Db, email: string, now: number): Promise<SubscribeResult> {
+  const inserted = await db
+    .insert(subscribers)
+    .values({
+      id: crypto.randomUUID(),
+      email,
+      status: "pending",
+      consentVersion: CONSENT_VERSION,
+      createdAt: now,
+      mailWindowStart: now,
+      mailWindowCount: 1,
+    })
+    .onConflictDoNothing()
+    .returning({ id: subscribers.id });
+  if (inserted.length > 0) return { action: "send", id: inserted[0].id, email };
+
+  // Address exists: confirmed -> nothing; pending -> atomic throttle in one UPDATE.
   const [row] = await db.select().from(subscribers).where(eq(subscribers.email, email));
+  if (!row || row.status === "confirmed") return { action: "none" };
 
-  if (!row) {
-    const id = crypto.randomUUID();
-    await db
-      .insert(subscribers)
-      .values({
-        id,
-        email,
-        status: "pending",
-        consentVersion: CONSENT_VERSION,
-        createdAt: now,
-        mailWindowStart: now,
-        mailWindowCount: 1,
-      })
-      .onConflictDoNothing();
-    // Concurrent insert may have won; use the stored row's id.
-    const [stored] = await db.select().from(subscribers).where(eq(subscribers.email, email));
-    return { action: "send", id: stored.id, email };
-  }
-
-  if (row.status === "confirmed") return { action: "none" };
-
-  const windowExpired = row.mailWindowStart == null || now - row.mailWindowStart >= MAIL_WINDOW_MS;
-  if (windowExpired) {
-    await db
-      .update(subscribers)
-      .set({ mailWindowStart: now, mailWindowCount: 1 })
-      .where(eq(subscribers.id, row.id));
-    return { action: "send", id: row.id, email };
-  }
-  if (row.mailWindowCount < MAX_MAILS_PER_WINDOW) {
-    await db
-      .update(subscribers)
-      .set({ mailWindowCount: row.mailWindowCount + 1 })
-      .where(eq(subscribers.id, row.id));
-    return { action: "send", id: row.id, email };
-  }
-  return { action: "none" };
+  const expired = sql`(${subscribers.mailWindowStart} IS NULL OR ${now} - ${subscribers.mailWindowStart} >= ${MAIL_WINDOW_MS})`;
+  const updated = await db
+    .update(subscribers)
+    .set({
+      mailWindowStart: sql`CASE WHEN ${expired} THEN ${now} ELSE ${subscribers.mailWindowStart} END`,
+      mailWindowCount: sql`CASE WHEN ${expired} THEN 1 ELSE ${subscribers.mailWindowCount} + 1 END`,
+    })
+    .where(
+      and(
+        eq(subscribers.id, row.id),
+        eq(subscribers.status, "pending"),
+        sql`(${expired} OR ${subscribers.mailWindowCount} < ${MAX_MAILS_PER_WINDOW})`,
+      ),
+    )
+    .returning({ id: subscribers.id });
+  return updated.length > 0 ? { action: "send", id: row.id, email } : { action: "none" };
 }
 
 export async function confirmSubscription(db: Db, id: string, now: number): Promise<boolean> {

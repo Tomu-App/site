@@ -134,3 +134,29 @@ describe("cleanupPending", () => {
     expect((await rows()).map((r) => r.id).sort()).toEqual(["newpending", "oldconfirmed"]);
   });
 });
+
+describe("requestSubscription concurrency", () => {
+  it("never exceeds the mail cap under concurrent calls", async () => {
+    await requestSubscription(db, EMAIL, T); // count = 1
+    const rs = await Promise.all([1, 2, 3, 4].map(() => requestSubscription(db, EMAIL, T + 1)));
+    expect(rs.filter((r) => r.action === "send")).toHaveLength(1);
+    const [row] = await rows();
+    expect(row.mailWindowCount).toBe(2);
+  });
+
+  it("concurrent first-time calls yield one row, one id, one send max per cap", async () => {
+    const rs = await Promise.all([1, 2, 3, 4].map(() => requestSubscription(db, EMAIL, T)));
+    expect(await rows()).toHaveLength(1);
+    expect(rs.filter((r) => r.action === "send").length).toBeLessThanOrEqual(2);
+    const ids = new Set(rs.flatMap((r) => (r.action === "send" ? [r.id] : [])));
+    expect(ids.size).toBe(1);
+  });
+
+  it("lost insert race on a confirmed address sends nothing", async () => {
+    const r = await requestSubscription(db, EMAIL, T);
+    if (r.action !== "send") throw new Error("expected send");
+    await confirmSubscription(db, r.id, T + 1);
+    const rs = await Promise.all([1, 2, 3].map(() => requestSubscription(db, EMAIL, T + 2)));
+    expect(rs.every((x) => x.action === "none")).toBe(true);
+  });
+});
