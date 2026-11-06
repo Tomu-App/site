@@ -15,6 +15,7 @@ jobs:
           node-version: lts/*
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm types:check
       - run: pnpm build
       - run: pnpm check
       - run: pnpm lint
