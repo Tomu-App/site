@@ -13,6 +13,8 @@ const db = getDb(env.DB);
 const good = { email: EMAIL, consent: true, turnstileToken: "tok" };
 
 let sent: ConfirmationMail[];
+let deferred: Promise<unknown>[];
+const flush = () => Promise.all(deferred);
 const make = (over: Partial<SubscribeDeps> = {}): SubscribeDeps => ({
   db,
   now: T,
@@ -24,11 +26,15 @@ const make = (over: Partial<SubscribeDeps> = {}): SubscribeDeps => ({
   send: async (m) => {
     sent.push(m);
   },
+  defer: (t) => {
+    deferred.push(t);
+  },
   ...over,
 });
 
 beforeEach(async () => {
   sent = [];
+  deferred = [];
   await env.DB.prepare("delete from subscribers").run();
 });
 afterEach(() => vi.restoreAllMocks());
@@ -65,6 +71,7 @@ describe("handleSubscribe", () => {
   it("sends mail with valid tokens for a new address", async () => {
     const r = await handleSubscribe(make(), { ...good, email: "  Oma@Example.DE " });
     expect(r).toEqual({ status: 200, body: { ok: true } });
+    await flush();
     expect(sent).toHaveLength(1);
     const [row] = await db.select().from(subscribers);
     const m = sent[0];
@@ -79,8 +86,10 @@ describe("handleSubscribe", () => {
     const [row] = await db.select().from(subscribers);
     await confirmSubscription(db, row.id, T);
     sent = [];
+    deferred = [];
     const again = await handleSubscribe(make({ now: T + 10 }), good);
     expect(again).toEqual(fresh);
+    await flush();
     expect(sent).toHaveLength(0);
   });
   it("sends at most twice for three requests in an hour", async () => {
@@ -90,6 +99,7 @@ describe("handleSubscribe", () => {
         body: { ok: true },
       });
     }
+    await flush();
     expect(sent).toHaveLength(2);
   });
   it("still answers 200 and logs no address when send throws", async () => {
@@ -104,7 +114,44 @@ describe("handleSubscribe", () => {
       good,
     );
     expect(r).toEqual({ status: 200, body: { ok: true } });
+    await flush();
     expect(err).toHaveBeenCalledWith("confirmation mail failed", "E_SENDER_NOT_VERIFIED");
     for (const spy of [err, log]) expect(JSON.stringify(spy.mock.calls)).not.toContain("oma@");
+  });
+  it("responds before a slow send finishes", async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((r) => (release = r));
+    const r = await handleSubscribe(
+      make({
+        send: async (m) => {
+          await gate;
+          sent.push(m);
+        },
+      }),
+      good,
+    );
+    expect(r).toEqual({ status: 200, body: { ok: true } });
+    expect(sent).toHaveLength(0);
+    release();
+    await flush();
+    expect(sent).toHaveLength(1);
+  });
+  it("returns 503 and logs no address when the db throws", async () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const failing = new Proxy(
+      {},
+      {
+        get() {
+          throw Object.assign(new Error(`Failed query: insert ... params: ${EMAIL}`), {
+            name: "DrizzleQueryError",
+          });
+        },
+      },
+    ) as unknown as SubscribeDeps["db"];
+    const r = await handleSubscribe(make({ db: failing }), good);
+    expect(r).toEqual({ status: 503, body: { error: "unavailable" } });
+    expect(err).toHaveBeenCalledWith("subscribe db failed", "DrizzleQueryError");
+    expect(JSON.stringify(err.mock.calls)).not.toContain("oma@");
+    expect(deferred).toHaveLength(0);
   });
 });

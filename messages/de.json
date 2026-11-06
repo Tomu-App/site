@@ -36,6 +36,7 @@
   "signup_error_captcha": "Die Sicherheitsprüfung hat nicht geklappt. Bitte versuch es noch einmal.",
   "signup_error_invalid": "Bitte prüfe deine E-Mail-Adresse und setz das Häkchen bei der Einwilligung.",
   "signup_error_rate_limited": "Bitte versuch es später noch einmal.",
+  "signup_error_unavailable": "Gerade gibt es ein technisches Problem. Bitte versuch es später noch einmal.",
   "signup_error_generic": "Das hat leider nicht geklappt. Bitte versuch es später noch einmal.",
   "signup_captcha_wait": "Bitte warte kurz, bis die Sicherheitsprüfung fertig ist.",
   "signup_noscript": "Für die Anmeldung braucht diese Seite JavaScript, weil die Sicherheitsprüfung (Cloudflare Turnstile) es benötigt. Bitte aktiviere JavaScript und lade die Seite neu.",

@@ -4,7 +4,15 @@
   import Turnstile from "./Turnstile.svelte";
 
   type Status =
-    "idle" | "submitting" | "success" | "captcha" | "captcha_wait" | "invalid" | "rate_limited" | "error";
+    | "idle"
+    | "submitting"
+    | "success"
+    | "captcha"
+    | "captcha_wait"
+    | "invalid"
+    | "rate_limited"
+    | "unavailable"
+    | "error";
 
   let email = $state("");
   let token = $state<string | null>(null);
@@ -32,6 +40,7 @@
       if (res.status === 429) status = "rate_limited";
       else if (body.error === "captcha") status = "captcha";
       else if (body.error === "invalid") status = "invalid";
+      else if (res.status === 503) status = "unavailable";
       else status = "error";
     } catch {
       status = "error";
@@ -50,6 +59,8 @@
         return m.signup_error_invalid();
       case "rate_limited":
         return m.signup_error_rate_limited();
+      case "unavailable":
+        return m.signup_error_unavailable();
       case "error":
         return m.signup_error_generic();
       default:

@@ -1,6 +1,6 @@
 import { env } from "cloudflare:workers";
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getDb } from "../src/lib/server/db/index";
 import { subscribers } from "../src/lib/server/db/schema";
 import { confirmLink, inspectLink, unsubscribeLink } from "../src/lib/server/link-actions";
@@ -78,5 +78,26 @@ describe("unsubscribeLink", () => {
   });
   it("null -> invalid", async () => {
     expect(await unsubscribeLink(db, SECRET, null, T)).toBe("invalid");
+  });
+});
+
+describe("db failures", () => {
+  const failing = new Proxy(
+    {},
+    {
+      get() {
+        throw Object.assign(new Error("params: oma@example.de"), { name: "DrizzleQueryError" });
+      },
+    },
+  ) as unknown as typeof db;
+  it("confirm and unsubscribe -> invalid, log name only", async () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const c = await signToken(SECRET, ID, "confirm", T);
+    const u = await signToken(SECRET, ID, "unsubscribe", T);
+    expect(await confirmLink(failing, SECRET, c, T)).toBe("invalid");
+    expect(await unsubscribeLink(failing, SECRET, u, T)).toBe("invalid");
+    expect(JSON.stringify(err.mock.calls)).not.toContain("oma@");
+    expect(err).toHaveBeenCalledWith("confirm db failed", "DrizzleQueryError");
+    err.mockRestore();
   });
 });

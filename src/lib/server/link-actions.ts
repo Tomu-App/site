@@ -22,7 +22,12 @@ export async function confirmLink(
   if (!token) return "invalid";
   const id = await verifyToken(secret, token, "confirm", now);
   if (!id) return "invalid";
-  return (await confirmSubscription(db, id, now)) ? "confirmed" : "invalid";
+  try {
+    return (await confirmSubscription(db, id, now)) ? "confirmed" : "invalid";
+  } catch (e) {
+    console.error("confirm db failed", (e as Error)?.name ?? "unknown");
+    return "invalid";
+  }
 }
 
 export async function unsubscribeLink(
@@ -34,6 +39,11 @@ export async function unsubscribeLink(
   if (!token) return "invalid";
   const id = await verifyToken(secret, token, "unsubscribe", now);
   if (!id) return "invalid";
-  await unsubscribe(db, id);
+  try {
+    await unsubscribe(db, id);
+  } catch (e) {
+    console.error("unsubscribe db failed", (e as Error)?.name ?? "unknown");
+    return "invalid";
+  }
   return "unsubscribed";
 }

@@ -13,11 +13,14 @@ export type SubscribeDeps = {
   allow: () => Promise<boolean>;
   send: (mail: ConfirmationMail) => Promise<void>;
   mailFrom: string;
+  /** Schedules background work without delaying the response (waitUntil). Must not reject. */
+  defer: (task: Promise<unknown>) => void;
 };
 
 export type SubscribeResponse =
   | { status: 200; body: { ok: true } }
   | { status: 400; body: { error: "invalid" | "captcha" } }
+  | { status: 503; body: { error: "unavailable" } }
   | { status: 429; body: { error: "rate_limited" } };
 
 const schema = z.object({
@@ -40,29 +43,42 @@ export async function handleSubscribe(deps: SubscribeDeps, body: unknown): Promi
   const email = normalizeEmail(parsed.data.email);
   if (!email) return { status: 400, body: { error: "invalid" } };
 
-  const result = await requestSubscription(deps.db, email, deps.now);
+  let result;
+  try {
+    result = await requestSubscription(deps.db, email, deps.now);
+  } catch (e) {
+    // Drizzle errors embed query params (the address): log the name only.
+    console.error("subscribe db failed", (e as Error)?.name ?? "unknown");
+    return { status: 503, body: { error: "unavailable" } };
+  }
   if (result.action === "send") {
-    try {
-      const [confirm, unsubscribe] = await Promise.all([
-        signToken(deps.jwtSecret, result.id, "confirm", deps.now),
-        signToken(deps.jwtSecret, result.id, "unsubscribe", deps.now),
-      ]);
-      await deps.send(
-        buildConfirmationMail({
-          to: result.email,
-          from: deps.mailFrom,
-          confirmUrl: `${deps.baseUrl}/bestaetigen?token=${confirm}`,
-          unsubscribeUrl: `${deps.baseUrl}/abmelden?token=${unsubscribe}`,
-        }),
-      );
-    } catch (e) {
-      // Never log the address, token or URL: only an error code or name.
-      const code = (e as { code?: unknown } | null)?.code;
-      console.error(
-        "confirmation mail failed",
-        typeof code === "string" ? code : ((e as Error)?.name ?? "unknown"),
-      );
-    }
+    // Fire and forget: the response must not depend on (or time) mail work.
+    const { id, email: to } = result;
+    deps.defer(sendConfirmation(deps, id, to));
   }
   return OK;
+}
+
+async function sendConfirmation(deps: SubscribeDeps, id: string, to: string): Promise<void> {
+  try {
+    const [confirm, unsubscribe] = await Promise.all([
+      signToken(deps.jwtSecret, id, "confirm", deps.now),
+      signToken(deps.jwtSecret, id, "unsubscribe", deps.now),
+    ]);
+    await deps.send(
+      buildConfirmationMail({
+        to,
+        from: deps.mailFrom,
+        confirmUrl: `${deps.baseUrl}/bestaetigen?token=${confirm}`,
+        unsubscribeUrl: `${deps.baseUrl}/abmelden?token=${unsubscribe}`,
+      }),
+    );
+  } catch (e) {
+    // Never log the address, token or URL: only an error code or name.
+    const code = (e as { code?: unknown } | null)?.code;
+    console.error(
+      "confirmation mail failed",
+      typeof code === "string" ? code : ((e as Error)?.name ?? "unknown"),
+    );
+  }
 }
