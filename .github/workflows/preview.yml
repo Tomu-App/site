@@ -20,7 +20,8 @@ jobs:
     if: >-
       github.event.action != 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
-      github.actor != 'dependabot[bot]' &&
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      !startsWith(github.event.pull_request.head.ref, 'dependabot/') &&
       vars.DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
     # CLOUDFLARE_API_TOKEN is an environment secret of "preview".
@@ -32,7 +33,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
         with:
-          runtime: node@lts
+          node-version-file: .node-version
           cache: true
           require-lockfile: true
       # No REQUIRE_PROD_CONFIG: Previews build with the Turnstile test site key.
@@ -77,7 +78,6 @@ jobs:
     if: >-
       github.event.action == 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
-      github.actor != 'dependabot[bot]' &&
       vars.DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment: preview
@@ -87,11 +87,22 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
         with:
-          runtime: node@lts
+          node-version-file: .node-version
           cache: true
           require-lockfile: true
       - name: Delete Preview
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-        run: pnpm exec wrangler preview delete --name "$PREVIEW_NAME" --skip-confirmation || echo "No Preview to delete (or already deleted)"
+        run: |
+          set +e
+          out=$(pnpm exec wrangler preview delete --name "$PREVIEW_NAME" --skip-confirmation 2>&1)
+          code=$?
+          echo "$out"
+          if [ $code -ne 0 ]; then
+            if echo "$out" | grep -qiE 'not found|does not exist|no preview'; then
+              echo "No Preview to delete."
+            else
+              exit $code
+            fi
+          fi
