@@ -1,17 +1,16 @@
 import { env } from "cloudflare:workers";
 import { getDb } from "../../lib/server/db/index";
 import { confirmLink, inspectLink } from "../../lib/server/link-actions";
-import type { Actions, PageServerLoad } from "./$types";
 
 export const prerender = false;
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load = async ({ url }) => {
   const token = url.searchParams.get("token");
   const { valid } = await inspectLink(env.JWT_SECRET, token, "confirm", Date.now());
   return { valid, token: valid ? token : null };
 };
 
-export const actions: Actions = {
+export const actions = {
   default: async ({ request }) => {
     const data = await request.formData();
     const token = data.get("token");

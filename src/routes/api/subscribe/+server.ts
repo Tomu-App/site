@@ -3,9 +3,8 @@ import { env } from "cloudflare:workers";
 import { getDb } from "../../../lib/server/db/index";
 import { handleSubscribe } from "../../../lib/server/subscribe-handler";
 import { verifyTurnstile } from "../../../lib/server/turnstile";
-import type { RequestHandler } from "./$types";
 
-export const POST: RequestHandler = async (event) => {
+export const POST = async (event) => {
   let body: unknown;
   try {
     body = await event.request.json();
