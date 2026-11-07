@@ -70,18 +70,19 @@
 </script>
 
 <section id="signup" aria-labelledby="signup-title" class="max-w-xl scroll-mt-8">
-  <h2 id="signup-title" class="sr-only">{m.signup_title()}</h2>
+  <h2 id="signup-title" class="text-2xl font-bold">{m.signup_title()}</h2>
+  <p class="mt-2 text-lg text-door-muted">{m.signup_intro()}</p>
 
   <noscript>
     <p class="mt-4 text-lg">{m.signup_noscript()}</p>
   </noscript>
 
   {#if status === "success"}
-    <p role="status" class="rounded-lg bg-ok px-5 py-4 text-xl font-semibold text-ok-ink">
+    <p role="status" class="mt-5 rounded-lg bg-ok px-5 py-4 text-xl font-semibold text-ok-ink">
       {m.signup_success()}
     </p>
   {:else}
-    <form onsubmit={submit} class="space-y-5">
+    <form onsubmit={submit} class="mt-5 space-y-5">
       <div>
         <label for="signup-email" class="block text-lg font-semibold">{m.signup_email_label()}</label>
         <input

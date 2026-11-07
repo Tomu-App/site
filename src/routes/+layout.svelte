@@ -6,7 +6,7 @@
   import Logo from "#lib/components/Logo.svelte";
   import * as m from "#lib/paraglide/messages.js";
   import { baseLocale, localizeHref, locales } from "#lib/paraglide/runtime.js";
-  import { SITE_ORIGIN } from "#lib/site.ts";
+  import { APP_URL, SITE_ORIGIN } from "#lib/site.ts";
 
   let { children } = $props();
 
@@ -30,7 +30,14 @@
 <div class="flex min-h-screen flex-col">
   <header class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 pt-6 sm:px-10 sm:pt-8">
     <a href={localizeHref("/")} class="inline-block"><Logo /></a>
-    <LanguageSwitcher />
+    <div class="flex items-center gap-2">
+      <a
+        href={APP_URL}
+        class="hidden min-h-12 items-center rounded-lg px-4 text-lg font-semibold text-door-ink underline sm:flex"
+        >{m.app_open()}</a
+      >
+      <LanguageSwitcher />
+    </div>
   </header>
   <div class="flex-1">
     {@render children()}

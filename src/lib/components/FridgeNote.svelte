@@ -3,7 +3,7 @@
   import * as m from "#lib/paraglide/messages.js";
   import LabelTag from "./LabelTag.svelte";
 
-  // Sample content only: the app does not exist yet, so the note is labelled as an example.
+  // Sample content only, not a real list, so the note is labelled as an example.
   type Item = {
     id: string;
     text: () => string;

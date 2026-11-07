@@ -3,6 +3,7 @@
   import LabelTag from "#lib/components/LabelTag.svelte";
   import SignupForm from "#lib/components/SignupForm.svelte";
   import * as m from "#lib/paraglide/messages.js";
+  import { APP_URL } from "#lib/site.ts";
 
   const points = [
     { title: m.home_point_1_title, text: m.home_point_1_text },
@@ -25,6 +26,10 @@
           <span class="status-dot" aria-hidden="true"></span>
           <span>{m.home_status()}</span>
         </p>
+        <div class="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <a href={APP_URL} class="btn-action w-full sm:w-auto">{m.app_open()}</a>
+          <span class="beta-badge">{m.app_beta_badge()}</span>
+        </div>
       </div>
       <div class="note-col">
         <FridgeNote />
@@ -119,6 +124,20 @@
     line-height: 1.08;
     letter-spacing: -0.015em;
     max-width: 20ch;
+  }
+  /* Beta marker beside the app link: an outlined pill in door ink (red stays with the magnet). */
+  .beta-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1rem 0.75rem;
+    border: 2px solid var(--door-ink);
+    border-radius: 999px;
+    color: var(--door-ink);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
   .status-dot {
     flex: none;

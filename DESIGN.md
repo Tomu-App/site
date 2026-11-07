@@ -212,7 +212,7 @@ The palette is a cool enamel door, white paper, blue ballpoint ink and one red m
 
 ### Secondary
 
-- **Magnet Red** (`magnet`): the fridge magnet. It also colors the status dot before the "in development" line, the text caret and, as `ring`, the focus outline. `magnet-light` is the lighter red used for the dark-mode focus ring.
+- **Magnet Red** (`magnet`): the fridge magnet. It also colors the status dot before the beta status line, the text caret and, as `ring`, the focus outline. `magnet-light` is the lighter red used for the dark-mode focus ring.
 
 ### Neutral
 
@@ -265,7 +265,7 @@ Both families are self-hosted through `@fontsource`. Do not use a CDN.
 
 ## Layout
 
-The layout is one centered column, max 72rem wide, with 1.5rem side gutters (2.5rem from 640px). The header has the logo at left and the language links at right. The footer has its links above a 2px `door-deep` rule. Sections on the homepage are separated by 2px `door-deep` rules and 5rem of vertical padding (7rem from 1024px).
+The layout is one centered column, max 72rem wide, with 1.5rem side gutters (2.5rem from 640px). The header has the logo at left and, at right, the "Tomu öffnen" app link (from 640px; below that the hero button carries it) followed by the language links. The footer has its links above a 2px `door-deep` rule. Sections on the homepage are separated by 2px `door-deep` rules and 5rem of vertical padding (7rem from 1024px).
 
 From 1024px the hero is a two-column grid (1.15fr / 1fr, 5rem gap). Pitch and signup sit stacked at left, and the note is pinned at right, offset down by 1.5rem. Below 1024px the order is pitch, signup, then note, so the action stays in the first screen. The note is never wider than 30rem and is centered.
 
@@ -301,6 +301,7 @@ Big, blue and calm: one obvious action per screen.
 - **Primary:** `action` fill, white text, button type, slight lift shadow.
 - **Hover / Focus:** hover darkens to `action-hover` over 160ms ease-out. Active presses down 1px. Focus shows a 3px `ring` outline offset 3px; on paper (anything inside `.slip`) the ring uses `pen` instead, because the dark-mode red ring falls to 2.1:1 on `slip-dark`. Disabled drops to 60% opacity with a progress cursor.
 - **On a slip:** uses `pen` in both modes (see The Slip Stays Paper Rule).
+- **App link:** the hero's "Tomu öffnen" link to the web app is a primary `btn-action` anchor, followed by a "Beta" badge: an outlined `door-ink` pill (2px stroke, 1rem bold uppercase), never red.
 - **Text action:** the replay control is a 3rem-tall underlined text button in `door-ink`. It stays invisible until the demo has finished.
 
 ### Cards / Containers
