@@ -22,7 +22,12 @@ This repo holds the marketing site at `tomu.foo` and the newsletter sign-up with
 - **Node.js** in the version from `.node-version` and **pnpm** (version pinned in `package.json` `packageManager`).
 - For local development, copy `.env.example` to `.env.local`. Do not create a plain `.env` or a `.dev.vars` (see `README.md`).
 
-Run `pnpm install` once, then `pnpm build`, `pnpm check`, `pnpm lint` and `pnpm test` before you push. CI runs the same four.
+Run `pnpm install` once, then `pnpm lint`, `pnpm build`, `pnpm check` and `pnpm test` before you push. CI runs the same four.
+
+`pnpm install` also installs two Git hooks (husky, `.husky/`):
+
+- `commit-msg` rejects subjects that are not Conventional Commits (`<type>(<scope>)!: <description>`). Merge, revert and `fixup!` commits pass.
+- `pre-push` runs the same four checks as CI only when the push updates `main`. Pushes to other branches skip it, since their PR runs CI. It checks the working tree, so stash uncommitted changes first. `git push --no-verify` skips both hooks in an emergency.
 
 ## What a good change looks like
 

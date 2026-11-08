@@ -1,0 +1,15 @@
+# Run the CI checks only when this push updates main. Other branches get CI on their PR.
+pushes_main=false
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$local_sha" in
+    *[!0]*) [ "$remote_ref" = "refs/heads/main" ] && pushes_main=true ;;
+  esac
+done
+
+[ "$pushes_main" = true ] || exit 0
+
+echo "pre-push: pushing to main, running lint, build, check and test"
+pnpm lint
+pnpm build
+pnpm check
+pnpm test

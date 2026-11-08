@@ -19,7 +19,9 @@ pnpm db:generate         # Drizzle migrations from src/lib/server/db/schema.ts i
 pnpm db:migrate:local    # apply migrations to local D1
 ```
 
-CI (`.github/workflows/ci.yml`) runs check, lint and tests. `deploy.yml` deploys `main` to production;
+Git hooks (husky, `.husky/`): `commit-msg` enforces Conventional Commits; `pre-push` runs lint, build, check and test, but only for pushes to `main`.
+
+CI (`.github/workflows/ci.yml`) runs lint, build, check and tests. `deploy.yml` deploys `main` to production;
 
 ## Layout
 

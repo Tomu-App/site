@@ -17,7 +17,7 @@ jobs:
           node-version-file: .node-version
           cache: true
           require-lockfile: true
+      - run: pnpm lint
       - run: pnpm build
       - run: pnpm check
-      - run: pnpm lint
       - run: pnpm test
