@@ -26,32 +26,6 @@
   "triggers": { "crons": ["0 3 * * *"] },
   "routes": [{ "pattern": "tomu.foo", "custom_domain": true }],
   "observability": { "enabled": true, "logs": { "invocation_logs": false } },
-  "workers_dev": true,
-  "preview_urls": true,
-  // Worker Previews (wrangler preview --name pr-<n>), isolated from production.
-  // No crons or routes here: Previews do not support them.
-  "previews": {
-    // Empty BASE_URL: mail links use the origin of the request (see resolveBaseUrl).
-    "vars": { "BASE_URL": "", "MAIL_FROM": "hallo@tomu.foo" },
-    // One D1 shared by all Previews. Keep database_id in sync with wrangler.preview-migrations.jsonc.
-    "d1_databases": [
-      {
-        "binding": "DB",
-        "database_name": "tomu-site-preview",
-        "database_id": "d844aeb6-fa9a-4f2a-86eb-02a57729e805",
-        "migrations_dir": "migrations",
-      },
-    ],
-    "send_email": [
-      {
-        "name": "EMAIL",
-        "allowed_sender_addresses": ["hallo@tomu.foo"],
-        // Operator: add your verified addresses here (Previews must never mail real subscribers).
-        "allowed_destination_addresses": [],
-      },
-    ],
-    "ratelimits": [
-      { "name": "SIGNUP_LIMITER", "namespace_id": "1002", "simple": { "limit": 3, "period": 60 } },
-    ],
-  },
+  "workers_dev": false,
+  "preview_urls": false,
 }

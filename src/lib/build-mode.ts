@@ -1,6 +1,6 @@
 export const TURNSTILE_TEST_SITE_KEY = "1x00000000000000000000AA";
 
-/** Prod config is enforced only when the build explicitly sets REQUIRE_PROD_CONFIG=1 (production deploy job). CI, previews, dev and tests stay lenient. */
+/** Prod config is enforced only when the build explicitly sets REQUIRE_PROD_CONFIG=1 (production deploy job). CI, dev and tests stay lenient. */
 export function isRequireProdConfig(env: Record<string, string | undefined> | undefined): boolean {
   return env?.REQUIRE_PROD_CONFIG === "1";
 }

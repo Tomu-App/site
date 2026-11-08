@@ -3,7 +3,7 @@
 Tomu marketing site with newsletter double opt-in. SvelteKit (Svelte 5, TypeScript) on Cloudflare Workers, D1 via Drizzle, Tailwind 4, Paraglide i18n (de, en). Package manager: pnpm.
 
 - Product context: `PRODUCT.md`. Site design doc: `../docs/specs/2026-11-06-repos-site-anmeldung-design.md`. Product spec: `../docs/spec.md`.
-- Setup, secrets, deploy and preview details: `README.md`.
+- Setup, secrets and deploy details: `README.md`.
 
 ## Commands
 
@@ -19,7 +19,7 @@ pnpm db:generate         # Drizzle migrations from src/lib/server/db/schema.ts i
 pnpm db:migrate:local    # apply migrations to local D1
 ```
 
-CI (`.github/workflows/ci.yml`) runs check, lint and tests. `deploy.yml` deploys `main` to production; `preview.yml` creates a Worker Preview per PR.
+CI (`.github/workflows/ci.yml`) runs check, lint and tests. `deploy.yml` deploys `main` to production;
 
 ## Layout
 

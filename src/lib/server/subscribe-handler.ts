@@ -17,7 +17,7 @@ export type SubscribeDeps = {
   defer: (task: Promise<unknown>) => void;
 };
 
-/** Mail link base: configured BASE_URL, or the request origin when empty (PR previews). */
+/** Mail link base: configured BASE_URL, or the request origin when empty. */
 export function resolveBaseUrl(envBaseUrl: string | undefined, requestUrl: URL): string {
   const configured = envBaseUrl?.trim().replace(/\/+$/, "");
   return configured ? configured : requestUrl.origin;
